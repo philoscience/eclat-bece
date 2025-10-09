@@ -1,12 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Navigation } from "@/components/Navigation";
+import { Hero } from "@/components/Hero";
+import { Features } from "@/components/Features";
+import { Leaderboard } from "@/components/Leaderboard";
+import { About } from "@/components/About";
+import { Pricing } from "@/components/Pricing";
+import { Footer } from "@/components/Footer";
+import { RoleSelectionDialog } from "@/components/RoleSelectionDialog";
 
 const Index = () => {
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+
+  const handleAuthAction = () => {
+    setRoleDialogOpen(true);
+  };
+
+  const scrollToLeaderboard = () => {
+    const element = document.getElementById("leaderboard");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navigation onLoginClick={handleAuthAction} onGetStartedClick={handleAuthAction} />
+      <Hero onGetStartedClick={handleAuthAction} onViewLeaderboardClick={scrollToLeaderboard} />
+      <Features />
+      <Leaderboard onViewFullLeaderboard={scrollToLeaderboard} />
+      <About />
+      <Pricing onGetStartedClick={handleAuthAction} />
+      <Footer />
+      <RoleSelectionDialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen} />
     </div>
   );
 };
