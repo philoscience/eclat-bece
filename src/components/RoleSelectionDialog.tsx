@@ -1,4 +1,5 @@
 import { GraduationCap, Users, School } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,8 @@ interface RoleSelectionDialogProps {
 }
 
 export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogProps) => {
+  const navigate = useNavigate();
+
   const roles = [
     {
       icon: GraduationCap,
@@ -21,7 +24,7 @@ export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogP
       description: "Practice questions, compete on leaderboards, and win prizes",
       color: "text-primary",
       bgColor: "bg-primary-light",
-      href: "#", // This would link to student signup/login
+      path: "/dashboard/student",
     },
     {
       icon: Users,
@@ -29,7 +32,7 @@ export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogP
       description: "Monitor your child's progress and support their learning journey",
       color: "text-accent",
       bgColor: "bg-accent-light",
-      href: "#", // This would link to parent signup/login
+      path: "/dashboard/parent",
     },
     {
       icon: School,
@@ -37,13 +40,12 @@ export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogP
       description: "Manage classrooms, assign work, and track student performance",
       color: "text-primary-glow",
       bgColor: "bg-primary-light",
-      href: "#", // This would link to school signup/login
+      path: "/dashboard/school",
     },
   ];
 
-  const handleRoleSelect = (role: string) => {
-    // In a real app, this would navigate to the appropriate signup/login page
-    console.log(`Selected role: ${role}`);
+  const handleRoleSelect = (path: string) => {
+    navigate(path);
     onOpenChange(false);
   };
 
@@ -63,7 +65,7 @@ export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogP
               <Card
                 key={index}
                 className="cursor-pointer border-2 hover:border-primary hover:shadow-hover transition-all duration-300 group"
-                onClick={() => handleRoleSelect(role.title)}
+                onClick={() => handleRoleSelect(role.path)}
               >
                 <CardContent className="p-6 text-center space-y-4">
                   <div className={`w-16 h-16 ${role.bgColor} rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform`}>

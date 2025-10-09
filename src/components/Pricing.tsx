@@ -24,8 +24,8 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
     },
     {
       name: "Premium",
-      price: "₦2,500",
-      period: "per month",
+      price: "₦5,000",
+      period: "forever",
       description: "Best for serious learners",
       features: [
         "Unlimited practice questions",
