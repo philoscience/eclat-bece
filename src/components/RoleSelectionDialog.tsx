@@ -21,7 +21,7 @@ export const RoleSelectionDialog = ({ open, onOpenChange }: RoleSelectionDialogP
     {
       icon: GraduationCap,
       title: "Student",
-      description: "Practice questions, compete on leaderboards, and win prizes",
+      description: "Practice BECE & Common Entrance, compete on leaderboards, and win prizes",
       color: "text-primary",
       bgColor: "bg-primary-light",
       path: "/dashboard/student",

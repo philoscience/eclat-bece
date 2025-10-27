@@ -110,7 +110,7 @@ export const CompetitionLeaderboards = ({
           National Leaderboards
         </CardTitle>
         <CardDescription>
-          Compete with BECE students across Nigeria and win real cash prizes
+          Compete with students across Nigeria and win real prizes
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -130,7 +130,7 @@ export const CompetitionLeaderboards = ({
             {renderLeaderboard(
               monthlyLeaders,
               <Trophy className="text-accent" size={20} />,
-              "Win ₦30,000 Cash Prize!"
+              "Win ₦50,000 Cash Prize!"
             )}
           </TabsContent>
 
@@ -138,7 +138,7 @@ export const CompetitionLeaderboards = ({
             {renderLeaderboard(
               annualLeaders,
               <Crown className="text-accent" size={20} />,
-              "Grand Prize: ₦500,000 Cash!"
+              "Grand Prize: ₦1,500,000 Cash!"
             )}
           </TabsContent>
         </Tabs>

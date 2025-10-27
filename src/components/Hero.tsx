@@ -25,17 +25,17 @@ export const Hero = ({ onGetStartedClick, onViewLeaderboardClick }: HeroProps) =
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-light rounded-full text-accent font-semibold animate-scale-in">
             <Sparkles size={16} />
-            <span>Nigeria's Premier BECE Prep Platform</span>
+            <span>Nigeria's Premier Exam Prep Platform</span>
           </div>
 
           {/* Main Heading */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-tight animate-slide-up">
-            Ace Your BECE. Compete Nationwide. Win Big.
+            Ace BECE & Common Entrance. Compete Nationwide. Win Big.
           </h1>
 
           {/* Subheading */}
           <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            Éclat transforms BECE preparation into an engaging competition — practice unlimited questions, climb national leaderboards, and win real cash prizes.
+            Éclat transforms exam preparation into an engaging competition — practice unlimited questions, climb national leaderboards, and win real prizes.
           </p>
 
           {/* CTA Buttons */}
@@ -57,10 +57,10 @@ export const Hero = ({ onGetStartedClick, onViewLeaderboardClick }: HeroProps) =
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-primary">50K+</div>
-              <div className="text-sm text-muted-foreground mt-1">BECE Questions</div>
+              <div className="text-sm text-muted-foreground mt-1">Practice Questions</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent">₦500K+</div>
+              <div className="text-3xl sm:text-4xl font-bold text-accent">₦1.5M+</div>
               <div className="text-sm text-muted-foreground mt-1">Prizes Awarded</div>
             </div>
           </div>

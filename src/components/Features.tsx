@@ -5,15 +5,15 @@ export const Features = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Comprehensive BECE Practice",
-      description: "Master Mathematics, English, Basic Science, and Social Studies with thousands of authentic BECE questions organized by subject and difficulty.",
+      title: "Comprehensive Exam Practice",
+      description: "Master Mathematics, English, Basic Science, and Social Studies with thousands of authentic BECE and Common Entrance questions organized by subject and difficulty.",
       color: "text-primary",
       bgColor: "bg-primary-light",
     },
     {
       icon: Trophy,
       title: "National Competition",
-      description: "Compete with BECE students across Nigeria. Top performers win real cash prizes monthly and annually!",
+      description: "Compete with students across Nigeria. Top performers win airtime, vouchers, and cash prizes weekly, monthly and annually!",
       color: "text-accent",
       bgColor: "bg-accent-light",
     },

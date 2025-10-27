@@ -86,7 +86,7 @@ export default function SchoolDashboard() {
             {/* Welcome Section */}
             <div className="mb-8 animate-fade-in">
               <h2 className="text-3xl font-bold text-foreground mb-2">School Dashboard</h2>
-              <p className="text-muted-foreground">Monitor BECE prep performance and support student success</p>
+              <p className="text-muted-foreground">Monitor exam prep performance and support student success</p>
             </div>
 
             {/* Overview Stats */}

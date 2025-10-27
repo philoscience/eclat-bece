@@ -68,7 +68,7 @@ export default function ParentDashboard() {
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-in">
           <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back! 👋</h2>
-          <p className="text-muted-foreground">Track your children's BECE prep progress and support their educational journey</p>
+          <p className="text-muted-foreground">Track your children's exam prep progress and support their educational journey</p>
         </div>
 
         {/* Quick Actions */}
@@ -210,9 +210,9 @@ export default function ParentDashboard() {
                 <BookOpen className="text-primary" size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-2">Supporting Your Child's BECE Journey</h3>
+                <h3 className="font-bold text-lg mb-2">Supporting Your Child's Journey</h3>
                 <p className="text-muted-foreground mb-4">
-                  Consistent practice is key to BECE success. Encourage your child to practice daily for 20-30 minutes
+                  Consistent practice is key to exam success. Encourage your child to practice daily for 20-30 minutes
                   and celebrate their progress along the way!
                 </p>
                 <Button variant="outline">View Parent Resources</Button>

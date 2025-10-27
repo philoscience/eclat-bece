@@ -3,8 +3,8 @@ import { CheckCircle2, BookOpen, TrendingUp, Target, Award, Globe, Smartphone } 
 export const About = () => {
   const steps = [
     {
-      title: "Practice Real BECE Questions",
-      description: "Access thousands of authentic BECE questions covering Mathematics, English, Basic Science, and Social Studies.",
+      title: "Practice Real Exam Questions",
+      description: "Access thousands of authentic BECE and Common Entrance questions covering Mathematics, English, Basic Science, and Social Studies.",
     },
     {
       title: "Compete Nationwide",
@@ -63,8 +63,8 @@ export const About = () => {
             </h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { icon: BookOpen, text: "Authentic BECE practice questions", color: "text-primary" },
-                { icon: Award, text: "Win real cash prizes monthly", color: "text-accent" },
+                { icon: BookOpen, text: "Authentic BECE & Common Entrance practice questions", color: "text-primary" },
+                { icon: Award, text: "Win airtime, vouchers & cash prizes", color: "text-accent" },
                 { icon: TrendingUp, text: "Track your score improvements", color: "text-primary" },
                 { icon: Globe, text: "Compete with students nationwide", color: "text-accent" },
                 { icon: Target, text: "Personalized study insights", color: "text-primary" },

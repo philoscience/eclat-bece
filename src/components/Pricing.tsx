@@ -27,7 +27,7 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
       features: [
         "Unlimited BECE & Common Entrance practice",
         "Full leaderboard access",
-        "Compete for ₦30K monthly prizes",
+        "Compete for ₦50K monthly prizes",
         "Detailed performance analytics",
         "Mobile & desktop access",
       ],
@@ -40,8 +40,8 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
       period: "/year",
       features: [
         "Everything in Monthly",
-        "Save ₦10K per year",
-        "Compete for ₦500K annual grand prize",
+        "Save ₦6K per year",
+        "Compete for ₦1.5M annual grand prize",
         "Priority support",
         "Advanced progress tracking",
       ],

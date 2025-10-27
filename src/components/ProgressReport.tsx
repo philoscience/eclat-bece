@@ -39,7 +39,7 @@ export const ProgressReport = ({
               <TrendingUp className="text-accent" size={24} />
               Progress Report
             </CardTitle>
-            <CardDescription>Your BECE prep journey at a glance</CardDescription>
+            <CardDescription>Your exam prep journey at a glance</CardDescription>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">

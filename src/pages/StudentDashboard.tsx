@@ -63,7 +63,7 @@ export default function StudentDashboard() {
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-in">
           <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, Ada! 🎉</h2>
-          <p className="text-muted-foreground">Ready to ace your BECE? You're 2 ranks away from Top 10 nationally!</p>
+          <p className="text-muted-foreground">Ready to ace your exams? You're 2 ranks away from Top 10 nationally!</p>
         </div>
 
         {/* Quick Stats */}
