@@ -3,6 +3,42 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
+/**
+ * ProtectedRoute Component - Client-Side Route Protection
+ * 
+ * SECURITY NOTE: This component provides UI-level route protection only.
+ * It checks user authentication and roles on the client side to control
+ * which pages users can access in the interface.
+ * 
+ * LIMITATIONS:
+ * - Client-side checks can be bypassed by determined attackers
+ * - This does NOT protect your data or API endpoints
+ * - All data security MUST be enforced server-side through:
+ *   1. Row Level Security (RLS) policies on database tables
+ *   2. Server-side role validation in Edge Functions
+ *   3. Proper use of the has_role() security definer function
+ * 
+ * WHEN TO ADD SERVER-SIDE VALIDATION:
+ * - When creating Edge Functions that perform sensitive operations
+ * - When implementing admin-only features or data modifications
+ * - When building APIs that expose privileged information
+ * 
+ * Example server-side validation in Edge Functions:
+ * ```typescript
+ * const { data: hasRole } = await supabase.rpc('has_role', {
+ *   _user_id: user.id,
+ *   _role: 'school'
+ * });
+ * if (!hasRole) {
+ *   return new Response('Forbidden', { status: 403 });
+ * }
+ * ```
+ * 
+ * The existing RLS policies and has_role() function provide strong
+ * server-side security. This component adds a user-friendly layer
+ * on top to prevent UI confusion and unauthorized navigation attempts.
+ */
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: "student" | "parent" | "school";
