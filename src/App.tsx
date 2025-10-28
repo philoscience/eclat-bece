@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import RoleSelectionPage from "./pages/RoleSelectionPage";
 import AuthPage from "./pages/AuthPage";
+import PasswordResetPage from "./pages/PasswordResetPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import StudentOnboarding from "./pages/StudentOnboarding";
 import StudentDashboard from "./pages/StudentDashboard";
@@ -28,6 +29,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/role-selection" element={<RoleSelectionPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/password-reset" element={<PasswordResetPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/onboarding" element={
             <ProtectedRoute requiredRole="student">

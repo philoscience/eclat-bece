@@ -322,7 +322,11 @@ export default function AuthPage() {
                   </Button>
                   <p className="text-sm text-center text-muted-foreground">
                     Forgot your password?{" "}
-                    <button type="button" className="text-primary hover:underline">
+                    <button 
+                      type="button" 
+                      onClick={() => navigate("/password-reset")}
+                      className="text-primary hover:underline"
+                    >
                       Reset here
                     </button>
                   </p>

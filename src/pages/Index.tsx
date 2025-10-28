@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
@@ -8,11 +8,55 @@ import { About } from "@/components/About";
 import { Pricing } from "@/components/Pricing";
 import { Footer } from "@/components/Footer";
 import { RoleSelectionDialog } from "@/components/RoleSelectionDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
-
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuthAndRedirect();
+  }, []);
+
+  const checkAuthAndRedirect = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // User is authenticated, check their role and redirect
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (roleData?.role === "student") {
+          // Check if student completed onboarding
+          const { data: studentData } = await supabase
+            .from("students")
+            .select("onboarding_completed")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+
+          if (studentData && !studentData.onboarding_completed) {
+            navigate("/onboarding");
+          } else {
+            navigate("/dashboard/student");
+          }
+        } else if (roleData?.role === "parent") {
+          navigate("/dashboard/parent");
+        } else if (roleData?.role === "school") {
+          navigate("/dashboard/school");
+        }
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
   
   const handleAuthAction = () => {
     navigate("/role-selection");
@@ -24,6 +68,14 @@ const Index = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
