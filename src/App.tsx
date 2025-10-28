@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import RoleSelectionPage from "./pages/RoleSelectionPage";
 import AuthPage from "./pages/AuthPage";
+import EmailVerificationPage from "./pages/EmailVerificationPage";
+import StudentOnboarding from "./pages/StudentOnboarding";
 import StudentDashboard from "./pages/StudentDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import SchoolDashboard from "./pages/SchoolDashboard";
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/role-selection" element={<RoleSelectionPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/verify-email" element={<EmailVerificationPage />} />
+          <Route path="/onboarding" element={<StudentOnboarding />} />
           <Route path="/dashboard/student" element={<StudentDashboard />} />
           <Route path="/dashboard/parent" element={<ParentDashboard />} />
           <Route path="/dashboard/school" element={<SchoolDashboard />} />
