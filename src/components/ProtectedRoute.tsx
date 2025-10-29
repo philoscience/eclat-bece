@@ -122,7 +122,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
             .eq("user_id", session.user.id)
             .maybeSingle();
 
-          if (studentData && !studentData.onboarding_completed) {
+          if (studentData && !studentData.onboarding_completed && location.pathname !== "/onboarding/student") {
             navigate("/onboarding/student");
             return;
           }
