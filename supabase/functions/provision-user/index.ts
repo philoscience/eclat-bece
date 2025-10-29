@@ -16,12 +16,20 @@ serve(async (req) => {
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Authenticated client to read the requester user
-    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: req.headers.get("Authorization") || "" } },
-    });
+    // Extract JWT from Authorization header (case-insensitive)
+    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
+    if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    const accessToken = authHeader.replace(/^[Bb]earer\s+/, "").trim();
 
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
+    // Authenticated client to read the requester user using provided JWT
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const { data: userData, error: userErr } = await userClient.auth.getUser(accessToken);
     if (userErr || !userData?.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,

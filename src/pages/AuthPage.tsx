@@ -208,69 +208,8 @@ export default function AuthPage() {
         return;
       }
 
-      // Use service role to create role records (bypass RLS during signup)
-      const { data: { session: adminSession } } = await supabase.auth.getSession();
-      
-      if (role === "student") {
-        // Insert role first
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role: "student" });
-
-        if (roleError) {
-          console.error("Error creating role:", roleError);
-        }
-
-        // Then insert student record
-        const { error: studentError } = await supabase
-          .from("students")
-          .insert({ user_id: data.user.id });
-
-        if (studentError) {
-          console.error("Error creating student record:", studentError);
-        }
-      } else if (role === "parent") {
-        // Insert role first
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role: "parent" });
-
-        if (roleError) {
-          console.error("Error creating role:", roleError);
-        }
-
-        // Then insert parent record
-        const { error: parentError } = await supabase
-          .from("parents")
-          .insert({ user_id: data.user.id });
-
-        if (parentError) {
-          console.error("Error creating parent record:", parentError);
-        }
-      } else if (role === "school") {
-        const schoolName = formData.get("schoolName") as string;
-        
-        // Insert role first
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role: "school" });
-
-        if (roleError) {
-          console.error("Error creating role:", roleError);
-        }
-
-        // Then insert school record
-        const { error: schoolError } = await supabase
-          .from("schools")
-          .insert({ 
-            user_id: data.user.id,
-            school_name: schoolName 
-          });
-
-        if (schoolError) {
-          console.error("Error creating school record:", schoolError);
-        }
-      }
+      // Defer role and record provisioning until AFTER login (via provision-user)
+      // This avoids RLS violations during signup when the user has no session yet.
 
       // Send verification email via edge function (it will generate and store the code)
       const { error: emailError } = await supabase.functions.invoke(

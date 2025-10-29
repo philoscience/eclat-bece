@@ -60,25 +60,14 @@ export default function EmailVerificationPage() {
         return;
       }
 
-      // Refresh the session to get updated user data with email_confirmed_at
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError) {
-        console.error("Session refresh error:", refreshError);
-      }
-
       toast({
         title: "Email Verified!",
-        description: "Your email has been verified successfully. Redirecting to onboarding...",
+        description: "Your email has been verified. Please sign in to continue.",
       });
 
-      // Redirect to role-specific onboarding after email verification
-      const onboardingPath = role === "parent" 
-        ? "/onboarding/parent" 
-        : role === "school" 
-        ? "/onboarding/school" 
-        : "/onboarding/student";
-      
-      navigate(onboardingPath);
+      // Redirect to auth so user can establish a session post-verification
+      const params = new URLSearchParams({ role, email: email ?? "", verified: "1" });
+      navigate(`/auth?${params.toString()}`);
     } catch (error: any) {
       toast({
         title: "Verification Failed",
