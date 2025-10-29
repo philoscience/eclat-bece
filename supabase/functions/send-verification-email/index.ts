@@ -7,7 +7,7 @@ const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 // Validate request body
 const requestSchema = z.object({
-  code: z.string().length(6).regex(/^[A-Z0-9]+$/, "Code must be 6 characters, A-Z and 0-9"),
+  code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
 });
 
 const corsHeaders = {
@@ -81,6 +81,7 @@ serve(async (req) => {
       from: "Éclat <onboarding@resend.dev>",
       to: [toEmail],
       subject: "Your Éclat verification code",
+      text: `Your Éclat verification code is ${code}. It expires in 10 minutes.`,
       html: `
         <!DOCTYPE html>
         <html>

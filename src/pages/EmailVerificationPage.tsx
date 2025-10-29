@@ -117,8 +117,8 @@ export default function EmailVerificationPage() {
         return;
       }
 
-      // Generate new verification code
-      const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Generate a new 6-digit numeric verification code
+      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
       // Save to database

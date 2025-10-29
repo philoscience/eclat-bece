@@ -218,8 +218,8 @@ export default function AuthPage() {
         }
       }
 
-      // Generate verification code
-      const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Generate a 6-digit numeric verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
       // Store verification code in database
       const { error: codeError } = await supabase
