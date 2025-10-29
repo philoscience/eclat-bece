@@ -92,7 +92,7 @@ serve(async (req) => {
 
     // Send the email via Resend
     const emailResponse = await resend.emails.send({
-      from: "Éclat <onboarding@resend.dev>",
+      from: "Éclat <noreply@bece.eclatapp.xyz>",
       to: [toEmail],
       subject: "Your Éclat verification code",
       text: `Your Éclat verification code is ${code}. It expires in 10 minutes.`,
