@@ -62,17 +62,17 @@ export default function EmailVerificationPage() {
 
       toast({
         title: "Email Verified!",
-        description: "Your email has been successfully verified.",
+        description: "Your email has been verified successfully. Redirecting to onboarding...",
       });
 
-      // Redirect based on role
-      if (role === "student") {
-        navigate("/onboarding");
-      } else if (role === "parent") {
-        navigate("/dashboard/parent");
-      } else {
-        navigate("/dashboard/school");
-      }
+      // Redirect to role-specific onboarding after email verification
+      const onboardingPath = role === "parent" 
+        ? "/onboarding/parent" 
+        : role === "school" 
+        ? "/onboarding/school" 
+        : "/onboarding/student";
+      
+      navigate(onboardingPath);
     } catch (error: any) {
       toast({
         title: "Verification Failed",

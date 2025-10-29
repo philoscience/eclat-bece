@@ -119,7 +119,7 @@ export default function AuthPage() {
         return;
       }
 
-      // Check onboarding status for students
+      // Check onboarding status based on role
       if (userRole === "student") {
         const { data: studentData } = await supabase
           .from("students")
@@ -128,7 +128,7 @@ export default function AuthPage() {
           .single();
 
         if (studentData && !studentData.onboarding_completed) {
-          navigate("/onboarding");
+          navigate("/onboarding/student");
           return;
         }
       }
@@ -276,6 +276,7 @@ export default function AuthPage() {
         description: "Please check your email to verify your account.",
       });
 
+      // Navigate to email verification page with user_id for later onboarding redirect
       navigate(`/verify-email?email=${encodeURIComponent(validated.email)}&role=${role}&user_id=${data.user.id}`);
     } catch (error: any) {
       if (error instanceof z.ZodError) {

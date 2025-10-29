@@ -11,6 +11,8 @@ import AuthPage from "./pages/AuthPage";
 import PasswordResetPage from "./pages/PasswordResetPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
 import StudentOnboarding from "./pages/StudentOnboarding";
+import ParentOnboarding from "./pages/ParentOnboarding";
+import SchoolOnboarding from "./pages/SchoolOnboarding";
 import StudentDashboard from "./pages/StudentDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import SchoolDashboard from "./pages/SchoolDashboard";
@@ -32,9 +34,19 @@ const App = () => (
           <Route path="/password-reset" element={<PasswordResetPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
           <Route path="/verify-email" element={<EmailVerificationPage />} />
-          <Route path="/onboarding" element={
+          <Route path="/onboarding/student" element={
             <ProtectedRoute requiredRole="student">
               <StudentOnboarding />
+            </ProtectedRoute>
+          } />
+          <Route path="/onboarding/parent" element={
+            <ProtectedRoute requiredRole="parent">
+              <ParentOnboarding />
+            </ProtectedRoute>
+          } />
+          <Route path="/onboarding/school" element={
+            <ProtectedRoute requiredRole="school">
+              <SchoolOnboarding />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/student" element={
