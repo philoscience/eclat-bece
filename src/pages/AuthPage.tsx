@@ -259,10 +259,13 @@ export default function AuthPage() {
     try {
       setIsLoading(true);
       
+      // Store role in localStorage before OAuth redirect
+      localStorage.setItem('pendingRole', role);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/auth?role=${role}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

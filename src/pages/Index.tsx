@@ -26,11 +26,41 @@ const Index = () => {
 
       if (session?.user) {
         // User is authenticated, check their role and redirect
-        const { data: roleData } = await supabase
+        let { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .maybeSingle();
+
+        // If no role exists, check for pending role from Google OAuth
+        if (!roleData) {
+          const pendingRole = localStorage.getItem('pendingRole') as "student" | "parent" | "school" | null;
+          if (pendingRole && (pendingRole === "student" || pendingRole === "parent" || pendingRole === "school")) {
+            // Create role record
+            await supabase
+              .from("user_roles")
+              .insert([{ user_id: session.user.id, role: pendingRole }]);
+
+            // Create role-specific record
+            if (pendingRole === "student") {
+              await supabase
+                .from("students")
+                .insert([{ user_id: session.user.id }]);
+            } else if (pendingRole === "parent") {
+              await supabase
+                .from("parents")
+                .insert([{ user_id: session.user.id }]);
+            } else if (pendingRole === "school") {
+              await supabase
+                .from("schools")
+                .insert([{ user_id: session.user.id, school_name: "" }]);
+            }
+
+            // Clear pending role and refetch
+            localStorage.removeItem('pendingRole');
+            roleData = { role: pendingRole };
+          }
+        }
 
         if (roleData?.role === "student") {
           // Check if student completed onboarding
