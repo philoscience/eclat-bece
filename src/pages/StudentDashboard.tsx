@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BookOpen, Trophy, TrendingUp, Target, Flame, LogOut, Settings } from "lucide-react";
 import { CompetitionLeaderboards } from "@/components/CompetitionLeaderboards";
 import { PracticeAssignment } from "@/components/PracticeAssignment";
@@ -8,12 +8,33 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [activeTab, setActiveTab] = useState("subject");
+  const [userName, setUserName] = useState("Student");
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+      
+      if (data?.full_name) {
+        const firstName = data.full_name.split(" ")[0];
+        setUserName(firstName);
+      }
+    };
+
+    fetchUserName();
+  }, [user]);
 
   const subjects = [
     { name: "Mathematics", icon: "📐", difficulty: "Core Subject", questions: 1850 },
@@ -64,7 +85,7 @@ export default function StudentDashboard() {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-in">
-          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, Ada! 🎉</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, {userName}! 🎉</h2>
           <p className="text-muted-foreground">Ready to ace your exams? You're 2 ranks away from Top 10 nationally!</p>
         </div>
 
