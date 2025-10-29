@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
@@ -46,12 +46,14 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    console.log(`ProtectedRoute - Checking auth for path: ${location.pathname}, required role: ${requiredRole}`);
     checkAuth();
-  }, []);
+  }, [location.pathname, requiredRole]);
 
   const checkAuth = async () => {
     try {
