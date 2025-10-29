@@ -70,7 +70,8 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
       // If a specific role is required, check it
       if (requiredRole) {
-        const { data: roleData } = await supabase
+        // Check if user has the required role
+        let { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
@@ -78,18 +79,32 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
           .maybeSingle();
 
         if (!roleData) {
-          // Redirect to correct dashboard based on their actual role
+          // Try to provision user roles/records (idempotent)
+          await supabase.functions.invoke("provision-user");
+
+          // Re-check actual role after provisioning
           const { data: userRole } = await supabase
             .from("user_roles")
             .select("role")
             .eq("user_id", session.user.id)
             .maybeSingle();
 
-          if (userRole?.role === "student") navigate("/dashboard/student");
-          else if (userRole?.role === "parent") navigate("/dashboard/parent");
-          else if (userRole?.role === "school") navigate("/dashboard/school");
-          else navigate("/role-selection");
-          return;
+          if (!userRole) {
+            navigate("/role-selection");
+            return;
+          }
+
+          // If they have a role but it's not the required one, route to their dashboard
+          if (userRole.role !== requiredRole) {
+            if (userRole.role === "student") navigate("/dashboard/student");
+            else if (userRole.role === "parent") navigate("/dashboard/parent");
+            else if (userRole.role === "school") navigate("/dashboard/school");
+            else navigate("/role-selection");
+            return;
+          }
+
+          // Role now matches required
+          roleData = userRole;
         }
 
         // For students, check onboarding status
@@ -101,7 +116,7 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
             .maybeSingle();
 
           if (studentData && !studentData.onboarding_completed) {
-            navigate("/onboarding");
+            navigate("/onboarding/student");
             return;
           }
         }

@@ -71,7 +71,7 @@ const Index = () => {
             .maybeSingle();
 
           if (studentData && !studentData.onboarding_completed) {
-            navigate("/onboarding");
+            navigate("/onboarding/student");
           } else {
             navigate("/dashboard/student");
           }
