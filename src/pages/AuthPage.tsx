@@ -218,16 +218,44 @@ export default function AuthPage() {
         }
       }
 
-      // Send verification email
-      const { error: emailError } = await supabase.functions.invoke(
-        "send-verification-email",
-        {
-          body: { userId: data.user.id },
-        }
-      );
+      // Generate verification code
+      const verificationCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      // Store verification code in database
+      const { error: codeError } = await supabase
+        .from("email_verifications")
+        .insert({
+          user_id: data.user.id,
+          email: validated.email,
+          code: verificationCode,
+          expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
+        });
 
-      if (emailError) {
-        console.error("Error sending verification email:", emailError);
+      if (codeError) {
+        console.error("Error storing verification code:", codeError);
+      }
+
+      // Get fresh session for edge function call
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      // Send verification email with proper authentication
+      if (sessionData.session) {
+        const { error: emailError } = await supabase.functions.invoke(
+          "send-verification-email",
+          {
+            body: { 
+              email: validated.email,
+              code: verificationCode 
+            },
+            headers: {
+              Authorization: `Bearer ${sessionData.session.access_token}`
+            }
+          }
+        );
+
+        if (emailError) {
+          console.error("Error sending verification email:", emailError);
+        }
       }
 
       toast({
