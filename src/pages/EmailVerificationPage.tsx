@@ -15,28 +15,27 @@ export default function EmailVerificationPage() {
   const { toast } = useToast();
   const email = searchParams.get("email");
   const role = searchParams.get("role") || "student";
+  const userId = searchParams.get("user_id");
   
   const [code, setCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
-    if (!email) {
+    if (!email || !userId) {
       navigate("/auth");
     }
-  }, [email, navigate]);
+  }, [email, userId, navigate]);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsVerifying(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
+      if (!userId) {
         toast({
           title: "Error",
-          description: "User not found. Please sign up again.",
+          description: "User ID not found. Please sign up again.",
           variant: "destructive",
         });
         navigate("/auth");
@@ -47,7 +46,7 @@ export default function EmailVerificationPage() {
       const { data: verificationData, error: verifyError } = await supabase
         .from("email_verification_codes")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("code", code.toUpperCase())
         .eq("verified", false)
         .gt("expires_at", new Date().toISOString())
@@ -75,7 +74,7 @@ export default function EmailVerificationPage() {
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ email_verified: true })
-        .eq("id", user.id);
+        .eq("id", userId);
 
       if (profileError) throw profileError;
 
@@ -106,12 +105,10 @@ export default function EmailVerificationPage() {
   const handleResendCode = async () => {
     setIsResending(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user || !email) {
+      if (!userId || !email) {
         toast({
           title: "Error",
-          description: "User not found. Please sign up again.",
+          description: "User ID not found. Please sign up again.",
           variant: "destructive",
         });
         return;
@@ -121,7 +118,7 @@ export default function EmailVerificationPage() {
       const { error: emailError } = await supabase.functions.invoke(
         "send-verification-email",
         {
-          body: { user_id: user.id },
+          body: { user_id: userId },
         }
       );
 

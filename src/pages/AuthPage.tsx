@@ -235,7 +235,7 @@ export default function AuthPage() {
         description: "Please check your email to verify your account.",
       });
 
-      navigate(`/verify-email?email=${encodeURIComponent(validated.email)}&role=${role}`);
+      navigate(`/verify-email?email=${encodeURIComponent(validated.email)}&role=${role}&user_id=${data.user.id}`);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         toast({
