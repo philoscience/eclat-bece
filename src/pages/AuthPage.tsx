@@ -92,7 +92,24 @@ export default function AuthPage() {
         .eq("user_id", data.user.id)
         .maybeSingle();
 
-      if (!roleData) {
+      let userRole = roleData?.role as string | undefined;
+
+      if (!userRole) {
+        // Attempt to provision role and base records server-side (idempotent)
+        const { error: provisionError } = await supabase.functions.invoke("provision-user");
+        if (provisionError) {
+          console.warn("Provision user error:", provisionError);
+        } else {
+          const { data: roleData2 } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+          userRole = roleData2?.role as string | undefined;
+        }
+      }
+
+      if (!userRole) {
         toast({
           title: "Role Not Found",
           description: "Please complete your account setup.",
@@ -101,8 +118,6 @@ export default function AuthPage() {
         navigate("/role-selection");
         return;
       }
-
-      const userRole = roleData.role;
 
       // Check onboarding status for students
       if (userRole === "student") {
