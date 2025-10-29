@@ -117,27 +117,9 @@ export default function EmailVerificationPage() {
         return;
       }
 
-      // Generate a new 6-digit numeric verification code
-      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-      // Save to database
-      const { error: dbError } = await supabase
-        .from("email_verification_codes")
-        .insert({
-          user_id: user.id,
-          code: newCode,
-          expires_at: expiresAt.toISOString(),
-        });
-
-      if (dbError) throw dbError;
-
-      // Send email via edge function
+      // Send email via edge function (it will generate and store the code)
       const { error: emailError } = await supabase.functions.invoke(
-        "send-verification-email",
-        {
-          body: { code: newCode },
-        }
+        "send-verification-email"
       );
 
       if (emailError) throw emailError;

@@ -218,30 +218,9 @@ export default function AuthPage() {
         }
       }
 
-      // Generate a 6-digit numeric verification code
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      // Store verification code in database
-      const { error: codeError } = await supabase
-        .from("email_verification_codes")
-        .insert({
-          user_id: data.user.id,
-          code: verificationCode,
-          expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
-        });
-
-      if (codeError) {
-        console.error("Error storing verification code:", codeError);
-      }
-
-      // Send verification email via Edge Function (no auth required)
+      // Send verification email via edge function (it will generate and store the code)
       const { error: emailError } = await supabase.functions.invoke(
-        "send-verification-email",
-        {
-          body: { 
-            code: verificationCode 
-          }
-        }
+        "send-verification-email"
       );
 
       if (emailError) {

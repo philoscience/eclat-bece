@@ -1,14 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@4.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-
-// Validate request body
-const requestSchema = z.object({
-  code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
-});
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,47 +17,48 @@ serve(async (req) => {
   }
 
   try {
-    const json = await req.json().catch(() => ({}));
-    const parsed = requestSchema.safeParse(json);
-    if (!parsed.success) {
-      return new Response(
-        JSON.stringify({ error: "Invalid request", details: parsed.error.flatten() }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
+    // Get authenticated user from JWT
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    const { code } = parsed.data;
-
-    // Use service role to securely validate the code and resolve the recipient email
-    const supabase = createClient(
+    // Create client with service role for database operations
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Find matching, unexpired, unverified code
-    const { data: codeRow, error: codeErr } = await supabase
-      .from("email_verification_codes")
-      .select("id, user_id, expires_at, verified")
-      .eq("code", code)
-      .eq("verified", false)
-      .gt("expires_at", new Date().toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Create client with user's token to verify auth
+    const supabaseUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
 
-    if (codeErr || !codeRow) {
-      console.error("Invalid or expired code", codeErr);
-      return new Response(JSON.stringify({ error: "Invalid or expired code" }), {
-        status: 400,
+    // Get the authenticated user
+    const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
+    
+    if (userError || !user) {
+      console.error("User authentication failed", userError);
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     // Fetch the user's email from profiles
-    const { data: profile, error: profileErr } = await supabase
+    const { data: profile, error: profileErr } = await supabaseAdmin
       .from("profiles")
       .select("email")
-      .eq("id", codeRow.user_id)
+      .eq("id", user.id)
       .maybeSingle();
 
     if (profileErr || !profile?.email) {
@@ -75,6 +70,27 @@ serve(async (req) => {
     }
 
     const toEmail = profile.email;
+
+    // Generate a 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Insert the code into the database using service role
+    const { error: insertError } = await supabaseAdmin
+      .from("email_verification_codes")
+      .insert({
+        user_id: user.id,
+        code: code,
+        expires_at: expiresAt.toISOString(),
+      });
+
+    if (insertError) {
+      console.error("Failed to insert verification code", insertError);
+      return new Response(JSON.stringify({ error: "Failed to create verification code" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     // Send the email via Resend
     const emailResponse = await resend.emails.send({
