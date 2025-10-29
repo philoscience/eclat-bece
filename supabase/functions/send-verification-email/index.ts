@@ -40,22 +40,34 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Fetch the user's email from profiles
-    const { data: profile, error: profileErr } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", user_id)
-      .maybeSingle();
+    // Fetch the user's email from Auth Admin (service role) to avoid relying on profiles
+    const { data: userRes, error: adminErr } = await supabase.auth.admin.getUserById(user_id);
 
-    if (profileErr || !profile?.email) {
-      console.error("Profile not found for user", profileErr);
-      return new Response(JSON.stringify({ error: "Profile not found" }), {
+    let toEmail: string | null = null;
+
+    if (!adminErr && userRes?.user?.email) {
+      toEmail = userRes.user.email;
+    } else {
+      // Fallback to profiles table if available
+      const { data: profile, error: profileErr } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", user_id)
+        .maybeSingle();
+
+      if (profileErr) {
+        console.error("Error fetching profile for user", user_id, profileErr);
+      }
+      toEmail = profile?.email ?? null;
+    }
+
+    if (!toEmail) {
+      console.error("Email not found for user", user_id);
+      return new Response(JSON.stringify({ error: "User email not found" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
-
-    const toEmail = profile.email;
 
     // Generate a 6-digit numeric verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
