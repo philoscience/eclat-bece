@@ -85,8 +85,27 @@ export default function AuthPage() {
         return;
       }
 
+      // Get user's actual role from database
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+
+      if (!roleData) {
+        toast({
+          title: "Role Not Found",
+          description: "Please complete your account setup.",
+          variant: "destructive",
+        });
+        navigate("/role-selection");
+        return;
+      }
+
+      const userRole = roleData.role;
+
       // Check onboarding status for students
-      if (role === "student") {
+      if (userRole === "student") {
         const { data: studentData } = await supabase
           .from("students")
           .select("onboarding_completed")
@@ -99,7 +118,14 @@ export default function AuthPage() {
         }
       }
 
-      navigate(getDashboardPath());
+      // Navigate to appropriate dashboard based on actual role
+      const dashboardPath = userRole === "parent" 
+        ? "/dashboard/parent" 
+        : userRole === "school" 
+        ? "/dashboard/school" 
+        : "/dashboard/student";
+
+      navigate(dashboardPath);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         toast({
