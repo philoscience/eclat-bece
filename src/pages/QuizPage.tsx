@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Trophy, ArrowLeft, ArrowRight } from "lucide-react";
+import { CheckCircle2, XCircle, Trophy, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface Question {
-  id: number;
+  id: string;
   question: string;
   options: string[];
   correctAnswer: number;
@@ -15,51 +18,15 @@ interface Question {
   subject: string;
 }
 
-const sampleQuestions: Question[] = [
-  {
-    id: 1,
-    question: "If 3x - 7 = 14, what is the value of x?",
-    options: ["5", "6", "7", "8"],
-    correctAnswer: 2,
-    explanation: "Add 7 to both sides: 3x = 21. Then divide both sides by 3: x = 7.",
-    subject: "Mathematics",
-  },
-  {
-    id: 2,
-    question: "Choose the correct form: 'The students _____ their homework every day.'",
-    options: ["do", "does", "did", "doing"],
-    correctAnswer: 0,
-    explanation: "'Do' is the correct present tense verb for plural subject 'students'.",
-    subject: "English Language",
-  },
-  {
-    id: 3,
-    question: "What is the main function of the human heart?",
-    options: ["To digest food", "To pump blood", "To filter air", "To produce hormones"],
-    correctAnswer: 1,
-    explanation: "The heart is a muscular organ that pumps blood throughout the body.",
-    subject: "Basic Science",
-  },
-  {
-    id: 4,
-    question: "Nigeria gained independence from Britain in which year?",
-    options: ["1950", "1955", "1960", "1965"],
-    correctAnswer: 2,
-    explanation: "Nigeria gained independence on October 1, 1960.",
-    subject: "Social Studies",
-  },
-  {
-    id: 5,
-    question: "What is 25% of 80?",
-    options: ["15", "20", "25", "30"],
-    correctAnswer: 1,
-    explanation: "25% of 80 = 0.25 × 80 = 20.",
-    subject: "Mathematics",
-  },
-];
 
 export default function QuizPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const subject = searchParams.get("subject");
+  
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -67,8 +34,94 @@ export default function QuizPage() {
   const [quizComplete, setQuizComplete] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
 
-  const question = sampleQuestions[currentQuestion];
-  const progress = ((currentQuestion + 1) / sampleQuestions.length) * 100;
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!user) return;
+
+      try {
+        // Get student's class year
+        const { data: studentData } = await supabase
+          .from("students")
+          .select("class_year")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (!studentData?.class_year) {
+          toast.error("Unable to determine your class year");
+          navigate("/dashboard/student");
+          return;
+        }
+
+        // Determine which table to query
+        const tableName = studentData.class_year === 'year_6' 
+          ? 'quiz_questions_year6' 
+          : 'quiz_questions_year9';
+
+        const optionsTableName = studentData.class_year === 'year_6'
+          ? 'quiz_options_year6'
+          : 'quiz_options_year9';
+
+        // Build query with subject filter if provided
+        let query = supabase
+          .from(tableName as any)
+          .select("*");
+
+        if (subject) {
+          query = query.eq("subject", subject);
+        }
+
+        const { data: questionsData, error: questionsError } = await query.limit(10);
+
+        if (questionsError) {
+          console.error("Error fetching questions:", questionsError);
+          toast.error("Failed to load questions");
+          navigate("/dashboard/student");
+          return;
+        }
+
+        if (!questionsData || questionsData.length === 0) {
+          toast.error("No questions available for this subject");
+          navigate("/dashboard/student");
+          return;
+        }
+
+        // Fetch options for each question
+        const questionsWithOptions = await Promise.all(
+          questionsData.map(async (q: any) => {
+            const { data: optionsData } = await supabase
+              .from(optionsTableName as any)
+              .select("*")
+              .eq("question_id", q.id)
+              .order("display_order");
+
+            const correctOptionIndex = optionsData?.findIndex((opt: any) => opt.is_correct) ?? 0;
+
+            return {
+              id: q.id,
+              question: q.question_text,
+              options: optionsData?.map((opt: any) => opt.option_text) || [],
+              correctAnswer: correctOptionIndex,
+              explanation: q.explanation || "No explanation available.",
+              subject: q.subject,
+            };
+          })
+        );
+
+        setQuestions(questionsWithOptions);
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("An error occurred while loading questions");
+        navigate("/dashboard/student");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, [user, subject, navigate]);
+
+  const question = questions[currentQuestion];
+  const progress = questions.length > 0 ? ((currentQuestion + 1) / questions.length) * 100 : 0;
 
   const handleAnswerSelect = (index: number) => {
     if (!showFeedback) {
@@ -88,7 +141,7 @@ export default function QuizPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestion < sampleQuestions.length - 1) {
+    if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setSelectedAnswer(null);
       setShowFeedback(false);
@@ -106,8 +159,19 @@ export default function QuizPage() {
     setAnswers([]);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading questions...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (quizComplete) {
-    const percentage = Math.round((score / sampleQuestions.length) * 100);
+    const percentage = Math.round((score / questions.length) * 100);
     const isPassed = percentage >= 50;
 
     return (
@@ -121,7 +185,7 @@ export default function QuizPage() {
 
           <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-8 mb-6">
             <div className="text-6xl font-bold text-primary mb-2">
-              {score}/{sampleQuestions.length}
+              {score}/{questions.length}
             </div>
             <div className="text-2xl font-semibold mb-4">{percentage}% Correct</div>
             <Badge variant={isPassed ? "default" : "secondary"} className="text-lg px-4 py-1">
@@ -172,9 +236,9 @@ export default function QuizPage() {
           </Button>
           
           <div className="flex justify-between items-center mb-2">
-            <Badge variant="secondary">{question.subject}</Badge>
+            <Badge variant="secondary">{subject || "Mixed Topics"}</Badge>
             <span className="text-sm text-muted-foreground">
-              Question {currentQuestion + 1} of {sampleQuestions.length}
+              Question {currentQuestion + 1} of {questions.length}
             </span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -249,7 +313,7 @@ export default function QuizPage() {
               </Button>
             ) : (
               <Button onClick={handleNext} className="w-full" size="lg">
-                {currentQuestion < sampleQuestions.length - 1 ? (
+                {currentQuestion < questions.length - 1 ? (
                   <>
                     Next Question <ArrowRight className="ml-2 h-4 w-4" />
                   </>

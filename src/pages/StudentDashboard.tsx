@@ -211,7 +211,13 @@ export default function StudentDashboard() {
                            <span className="text-xs px-2 py-1 rounded-full bg-primary-light text-primary font-medium">
                              {subject.difficulty}
                            </span>
-                           <Button variant="hero" size="sm" onClick={() => navigate("/quiz")}>Start Practice</Button>
+                           <Button 
+                             variant="hero" 
+                             size="sm" 
+                             onClick={() => navigate(`/quiz?subject=${encodeURIComponent(subject.name)}`)}
+                           >
+                             Start Practice
+                           </Button>
                          </div>
                       </div>
                     ))}
