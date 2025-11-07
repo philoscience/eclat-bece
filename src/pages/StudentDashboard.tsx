@@ -136,12 +136,28 @@ export default function StudentDashboard() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img src={logo} alt="Éclat Logo" className="h-10 w-auto cursor-pointer" onClick={() => navigate("/")} />
-            {currentStreak > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1 bg-accent-light rounded-full">
-                <Flame className="text-accent" size={16} />
-                <span className="text-sm font-semibold text-accent">{currentStreak}-day streak!</span>
-              </div>
-            )}
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full ${
+              currentStreak === 0 
+                ? 'bg-destructive/20' 
+                : currentStreak >= 7 
+                ? 'bg-green-500/20' 
+                : 'bg-accent-light'
+            }`}>
+              <Flame className={`${
+                currentStreak === 0 
+                  ? 'text-destructive' 
+                  : currentStreak >= 7 
+                  ? 'text-green-600' 
+                  : 'text-accent'
+              }`} size={16} />
+              <span className={`text-sm font-semibold ${
+                currentStreak === 0 
+                  ? 'text-destructive' 
+                  : currentStreak >= 7 
+                  ? 'text-green-600' 
+                  : 'text-accent'
+              }`}>{currentStreak}-day streak!</span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
