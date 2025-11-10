@@ -90,7 +90,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 sm:p-2.5 text-foreground hover:text-primary transition-colors rounded-lg hover:bg-accent/50"
+            className="md:hidden p-2 sm:p-2.5 text-foreground hover:text-primary transition-colors rounded-lg hover:bg-accent/50"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -100,7 +100,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 sm:py-6 space-y-1 sm:space-y-2 border-t border-border/50 animate-fade-in bg-background">
+          <div className="md:hidden py-4 sm:py-6 space-y-1 sm:space-y-2 border-t border-border/50 animate-fade-in bg-background">
             <button
               onClick={() => scrollToSection("about")}
               className="block w-full text-left px-4 sm:px-5 py-3 sm:py-3.5 text-foreground/90 hover:text-primary hover:bg-accent/50 rounded-lg transition-all duration-200 font-semibold text-sm sm:text-[15px]"
