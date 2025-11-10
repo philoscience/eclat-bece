@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.png";
+import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 
 interface NavigationProps {
   onLoginClick: () => void;
@@ -12,6 +14,8 @@ interface NavigationProps {
 export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const logo = theme === "dark" ? logoDark : logoLight;
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
