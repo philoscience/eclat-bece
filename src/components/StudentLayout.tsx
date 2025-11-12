@@ -1,8 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Flame, Settings, User } from "lucide-react";
+import { Flame, Settings, User as UserIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,13 +29,28 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const { theme } = useTheme();
   const [currentStreak, setCurrentStreak] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [displayName, setDisplayName] = useState("");
   
   const logo = theme === "dark" ? logoLight : logoDark;
 
   useEffect(() => {
-    const fetchStreak = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
 
+      // Fetch profile data
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("avatar_url, display_name, email")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileData) {
+        setAvatarUrl(profileData.avatar_url || "");
+        setDisplayName(profileData.display_name || profileData.email || "");
+      }
+
+      // Fetch student data for streak
       const { data: studentData } = await supabase
         .from("students")
         .select("id")
@@ -54,8 +70,15 @@ export function StudentLayout({ children }: StudentLayoutProps) {
       }
     };
 
-    fetchStreak();
+    fetchUserData();
   }, [user]);
+
+  const getInitials = () => {
+    if (displayName) {
+      return displayName.substring(0, 2).toUpperCase();
+    }
+    return "ST";
+  };
 
   return (
     <SidebarProvider>
@@ -106,14 +129,19 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="hover:scale-110 hover:bg-accent/20 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl flex-shrink-0"
+                      className="hover:scale-110 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full flex-shrink-0 p-0"
                     >
-                      <Settings className="w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-[22px] md:h-[22px]" />
+                      <Avatar className="h-full w-full">
+                        <AvatarImage src={avatarUrl} alt={displayName} />
+                        <AvatarFallback className="bg-primary/10 text-primary">
+                          <UserIcon className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
-                      <User className="mr-2 h-4 w-4" />
+                      <Settings className="mr-2 h-4 w-4" />
                       <span>Profile Settings</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
