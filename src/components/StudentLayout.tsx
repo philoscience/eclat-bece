@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/StudentSidebar";
+import { StudentProfileSettings } from "@/components/StudentProfileSettings";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "next-themes";
@@ -20,6 +21,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const { signOut, user } = useAuth();
   const { theme } = useTheme();
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   const logo = theme === "dark" ? logoLight : logoDark;
 
@@ -95,7 +97,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                 <ThemeToggle />
                 <Button 
                   variant="ghost" 
-                  size="icon" 
+                  size="icon"
+                  onClick={() => setSettingsOpen(true)}
                   className="hover:scale-110 hover:bg-accent/20 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl flex-shrink-0"
                 >
                   <Settings className="w-[18px] h-[18px] sm:w-5 sm:h-5 md:w-[22px] md:h-[22px]" />
@@ -118,6 +121,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
           </main>
         </div>
       </div>
+      
+      <StudentProfileSettings open={settingsOpen} onOpenChange={setSettingsOpen} />
     </SidebarProvider>
   );
 }
