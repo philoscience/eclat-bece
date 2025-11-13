@@ -22,6 +22,7 @@ export default function StudentOnboarding() {
   const [parentCode, setParentCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [ageError, setAgeError] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -76,8 +77,44 @@ export default function StudentOnboarding() {
     fetchUserData();
   }, [navigate, toast]);
 
+  const validateAge = (dob: string) => {
+    if (!dob) {
+      setAgeError("");
+      return true;
+    }
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    if (age < 7) {
+      setAgeError("You must be at least 7 years old to register.");
+      return false;
+    }
+
+    setAgeError("");
+    return true;
+  };
+
+  const handleDateOfBirthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = e.target.value;
+    setDateOfBirth(newDate);
+    validateAge(newDate);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate age before submission
+    if (!validateAge(dateOfBirth)) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -226,10 +263,14 @@ export default function StudentOnboarding() {
                   id="dob"
                   type="date"
                   value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
+                  onChange={handleDateOfBirthChange}
                   required
                   max={new Date().toISOString().split('T')[0]}
+                  className={ageError ? "border-destructive" : ""}
                 />
+                {ageError && (
+                  <p className="text-sm text-destructive">{ageError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -266,7 +307,7 @@ export default function StudentOnboarding() {
                 type="submit"
                 variant="hero"
                 className="w-full"
-                disabled={isSubmitting || !classYear || !dateOfBirth}
+                disabled={isSubmitting || !classYear || !dateOfBirth || !!ageError}
               >
                 {isSubmitting ? (
                   <>
