@@ -213,7 +213,7 @@ export default function StudentDashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-2 hover:shadow-hover transition-all">
+          <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -232,7 +232,7 @@ export default function StudentDashboard() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-10">
             {/* Practice Section */}
-            <Card className="border-2 animate-scale-in">
+            <Card className="bg-gradient-to-br from-card to-background border-border/50 shadow-soft animate-scale-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="text-primary" size={24} />
@@ -250,7 +250,7 @@ export default function StudentDashboard() {
                     {subjects.map((subject, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 border-2 rounded-lg hover:border-primary hover:shadow-soft transition-all cursor-pointer"
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30 hover:bg-primary-light/20 hover:border-primary/30 hover:shadow-soft transition-all cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-3xl">{subject.icon}</span>
@@ -278,7 +278,7 @@ export default function StudentDashboard() {
                     {topics.map((topic, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 border-2 rounded-lg hover:border-primary hover:shadow-soft transition-all cursor-pointer"
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30 hover:bg-primary-light/20 hover:border-primary/30 hover:shadow-soft transition-all cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-3xl">{topic.icon}</span>
