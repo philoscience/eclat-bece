@@ -98,7 +98,7 @@ export default function StudentDashboardOverview() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up">
-        <Card className="border-2 hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -109,7 +109,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-accent-light/30 to-accent-light/10 border-accent-light/40 shadow-soft hover:shadow-hover transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -120,7 +120,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-2 hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -144,7 +144,7 @@ export default function StudentDashboardOverview() {
             return (
               <Card
                 key={index}
-                className="border-2 hover:border-primary hover:shadow-hover transition-all cursor-pointer group animate-scale-in"
+                className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all cursor-pointer group animate-scale-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onClick={() => navigate(feature.url)}
               >
@@ -172,7 +172,7 @@ export default function StudentDashboardOverview() {
       <Separator className="my-10 opacity-[0.07]" />
 
       {/* Recent Activity */}
-      <Card className="border-2 animate-fade-in">
+      <Card className="bg-gradient-to-br from-card to-background border-border/50 shadow-soft animate-fade-in">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
           <CardDescription>Your latest quiz results</CardDescription>
@@ -184,7 +184,7 @@ export default function StudentDashboardOverview() {
               { subject: "English Language", score: 78, date: "1 day ago", questions: 15 },
               { subject: "Basic Science", score: 92, date: "2 days ago", questions: 18 },
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+              <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 hover:shadow-soft transition-all">
                 <div>
                   <h4 className="font-semibold text-foreground">{activity.subject}</h4>
                   <p className="text-sm text-muted-foreground">{activity.questions} questions • {activity.date}</p>
