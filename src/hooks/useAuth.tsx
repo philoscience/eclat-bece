@@ -31,6 +31,9 @@ export const useAuth = () => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Immediately navigate and clear state
+    setUser(null);
+    setSession(null);
     navigate("/auth");
   };
 

@@ -45,22 +45,35 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const [isChecking, setIsChecking] = useState(true);
-  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    console.log(`ProtectedRoute - Checking auth for path: ${location.pathname}, required role: ${requiredRole}`);
-    checkAuth();
-  }, [location.pathname, requiredRole]);
+    checkAuthStatus();
+    
+    // IMPORTANT: Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          setIsAuthorized(false);
+          setIsChecking(false);
+          navigate('/auth');
+        }
+      }
+    );
 
-  const checkAuth = async () => {
+    return () => subscription?.unsubscribe();
+  }, [navigate]);
+
+  const checkAuthStatus = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
-      if (!session) {
+      if (!session?.user) {
         navigate("/auth");
+        setIsAuthorized(false);
         return;
       }
 
