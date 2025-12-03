@@ -22,7 +22,6 @@ import {
     Loader2,
     Trash2,
     Edit,
-    BookOpen,
     Filter
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +38,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Question {
     id: string;
@@ -49,6 +56,8 @@ interface Question {
     created_at: string;
 }
 
+const ITEMS_PER_PAGE = 50;
+
 export default function QuestionBankPage() {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
@@ -57,28 +66,56 @@ export default function QuestionBankPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+
+    // Debounce search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setCurrentPage(1); // Reset to first page on search
+            fetchQuestions();
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     useEffect(() => {
         fetchQuestions();
-    }, [classYear, subjectFilter]);
+    }, [classYear, subjectFilter, currentPage]);
 
     const fetchQuestions = async () => {
         setLoading(true);
         try {
             const tableName = classYear === 'year_6' ? 'quiz_questions_year6' : 'quiz_questions_year9';
+            const from = (currentPage - 1) * ITEMS_PER_PAGE;
+            const to = from + ITEMS_PER_PAGE - 1;
 
             let query = supabase
                 .from(tableName as any)
-                .select("id, subject, topic, question_text, difficulty, created_at")
-                .order("created_at", { ascending: false });
+                .select("id, subject, topic, question_text, difficulty, created_at", { count: 'exact' })
+                .order("created_at", { ascending: false })
+                .range(from, to);
 
             if (subjectFilter !== "all") {
                 query = query.eq("subject", subjectFilter);
             }
 
-            const { data, error } = await query;
+            if (searchQuery) {
+                // Search in question_text or topic
+                query = query.or(`question_text.ilike.%${searchQuery}%,topic.ilike.%${searchQuery}%`);
+            }
+
+            const { data, error, count } = await query;
 
             if (error) throw error;
+
             setQuestions(data || []);
+            if (count !== null) {
+                setTotalItems(count);
+                setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
+            }
         } catch (error) {
             console.error("Error fetching questions:", error);
             toast.error("Failed to load questions");
@@ -101,7 +138,8 @@ export default function QuestionBankPage() {
             if (error) throw error;
 
             toast.success("Question deleted successfully");
-            setQuestions(questions.filter(q => q.id !== deleteId));
+            // Refresh current page
+            fetchQuestions();
         } catch (error) {
             console.error("Error deleting question:", error);
             toast.error("Failed to delete question");
@@ -110,10 +148,10 @@ export default function QuestionBankPage() {
         }
     };
 
-    const filteredQuestions = questions.filter(q =>
-        q.question_text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        q.topic?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const handlePageChange = (page: number) => {
+        if (page < 1 || page > totalPages) return;
+        setCurrentPage(page);
+    };
 
     return (
         <div className="space-y-6">
@@ -138,7 +176,10 @@ export default function QuestionBankPage() {
                     />
                 </div>
 
-                <Select value={classYear} onValueChange={(v: any) => setClassYear(v)}>
+                <Select value={classYear} onValueChange={(v: any) => {
+                    setClassYear(v);
+                    setCurrentPage(1);
+                }}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Class Year" />
                     </SelectTrigger>
@@ -148,7 +189,10 @@ export default function QuestionBankPage() {
                     </SelectContent>
                 </Select>
 
-                <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                <Select value={subjectFilter} onValueChange={(v) => {
+                    setSubjectFilter(v);
+                    setCurrentPage(1);
+                }}>
                     <SelectTrigger className="w-[180px]">
                         <div className="flex items-center gap-2">
                             <Filter className="h-4 w-4" />
@@ -188,14 +232,14 @@ export default function QuestionBankPage() {
                                     </div>
                                 </TableCell>
                             </TableRow>
-                        ) : filteredQuestions.length === 0 ? (
+                        ) : questions.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                     No questions found.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            filteredQuestions.map((question) => (
+                            questions.map((question) => (
                                 <TableRow key={question.id}>
                                     <TableCell>
                                         <div className="line-clamp-2" title={question.question_text}>
@@ -246,6 +290,59 @@ export default function QuestionBankPage() {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                        Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} questions
+                    </div>
+                    <Pagination className="justify-end w-auto mx-0">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+
+                            {/* Simple pagination logic: show current page and neighbors */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                .filter(page =>
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                )
+                                .map((page, index, array) => (
+                                    <div key={page} className="flex items-center">
+                                        {index > 0 && array[index - 1] !== page - 1 && (
+                                            <PaginationItem>
+                                                <span className="px-2 text-muted-foreground">...</span>
+                                            </PaginationItem>
+                                        )}
+                                        <PaginationItem>
+                                            <PaginationLink
+                                                isActive={currentPage === page}
+                                                onClick={() => handlePageChange(page)}
+                                                className="cursor-pointer"
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    </div>
+                                ))
+                            }
+
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            )}
 
             <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <AlertDialogContent>
