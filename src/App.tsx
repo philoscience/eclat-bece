@@ -31,6 +31,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import PlatformUsersPage from "./pages/PlatformUsersPage";
+import QuestionBankPage from "./pages/QuestionBankPage";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +139,13 @@ const App = () => (
               <AdminProtectedRoute>
                 <AdminLayout>
                   <PlatformUsersPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/questions" element={
+              <AdminProtectedRoute>
+                <AdminLayout>
+                  <QuestionBankPage />
                 </AdminLayout>
               </AdminProtectedRoute>
             } />
