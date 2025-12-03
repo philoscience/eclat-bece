@@ -35,6 +35,7 @@ import QuestionBankPage from "./pages/QuestionBankPage";
 import AdminAnalyticsPage from "./pages/AdminAnalyticsPage";
 import AdminCompetitionsPage from "./pages/AdminCompetitionsPage";
 import AdminReportsPage from "./pages/AdminReportsPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -170,6 +171,13 @@ const App = () => (
               <AdminProtectedRoute>
                 <AdminLayout>
                   <AdminReportsPage />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <AdminProtectedRoute>
+                <AdminLayout>
+                  <AdminSettingsPage />
                 </AdminLayout>
               </AdminProtectedRoute>
             } />
