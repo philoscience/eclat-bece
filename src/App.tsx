@@ -29,6 +29,7 @@ import { StudentLayout } from "./components/StudentLayout";
 import { AdminLayout } from "./components/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLoginPage from "./pages/AdminLoginPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,13 @@ const App = () => (
               <AdminProtectedRoute>
                 <AdminLayout>
                   <AdminDashboard />
+                </AdminLayout>
+              </AdminProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <AdminProtectedRoute>
+                <AdminLayout>
+                  <AdminUsersPage />
                 </AdminLayout>
               </AdminProtectedRoute>
             } />
