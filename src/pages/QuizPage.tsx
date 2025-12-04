@@ -73,7 +73,7 @@ export default function QuizPage() {
           : 'comprehension_passages_year9';
 
         let query = supabase
-          .from(tableName as any)
+          .from(tableName)
           .select(`
             *,
             passage:${passageTableName}(title, passage_text)

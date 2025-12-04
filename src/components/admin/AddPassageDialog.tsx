@@ -70,7 +70,7 @@ export function AddPassageDialog({ onSuccess }: AddPassageDialogProps) {
                 : 'comprehension_passages_year9';
 
             const { error } = await supabase
-                .from(tableName as any)
+                .from(tableName)
                 .insert({
                     title: values.title || null,
                     passage_text: values.passageText,

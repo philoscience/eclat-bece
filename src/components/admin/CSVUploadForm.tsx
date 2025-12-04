@@ -172,7 +172,7 @@ export function CSVUploadForm({ onSuccess }: CSVUploadFormProps) {
             try {
                 // Insert question
                 const { data: questionData, error: questionError } = await supabase
-                    .from(tableName as any)
+                    .from(tableName)
                     .insert({
                         subject: row.subject.trim(),
                         topic: row.topic?.trim() || null,
@@ -202,7 +202,7 @@ export function CSVUploadForm({ onSuccess }: CSVUploadFormProps) {
                 }));
 
                 const { error: optionsError } = await supabase
-                    .from(optionsTableName as any)
+                    .from(optionsTableName)
                     .insert(optionsToInsert);
 
                 if (optionsError) throw optionsError;
