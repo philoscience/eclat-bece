@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -101,6 +121,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      competitions: {
+        Row: {
+          class_year: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string
+          id: string
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          class_year?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          class_year?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comprehension_passages_year6: {
+        Row: {
+          created_at: string | null
+          id: string
+          passage_text: string
+          subject: string | null
+          title: string | null
+          topic: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          passage_text: string
+          subject?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          passage_text?: string
+          subject?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      comprehension_passages_year9: {
+        Row: {
+          created_at: string | null
+          id: string
+          passage_text: string
+          subject: string | null
+          title: string | null
+          topic: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          passage_text: string
+          subject?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          passage_text?: string
+          subject?: string | null
+          title?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       email_verification_codes: {
         Row: {
@@ -341,6 +468,7 @@ export type Database = {
           difficulty: string | null
           explanation: string | null
           id: string
+          passage_id: string | null
           question_text: string
           subject: string
           topic: string | null
@@ -352,6 +480,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          passage_id?: string | null
           question_text: string
           subject: string
           topic?: string | null
@@ -363,12 +492,21 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          passage_id?: string | null
           question_text?: string
           subject?: string
           topic?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_year6_passage_id_fkey"
+            columns: ["passage_id"]
+            isOneToOne: false
+            referencedRelation: "comprehension_passages_year6"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_questions_year9: {
         Row: {
@@ -377,6 +515,7 @@ export type Database = {
           difficulty: string | null
           explanation: string | null
           id: string
+          passage_id: string | null
           question_text: string
           subject: string
           topic: string | null
@@ -388,6 +527,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          passage_id?: string | null
           question_text: string
           subject: string
           topic?: string | null
@@ -399,12 +539,21 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          passage_id?: string | null
           question_text?: string
           subject?: string
           topic?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_year9_passage_id_fkey"
+            columns: ["passage_id"]
+            isOneToOne: false
+            referencedRelation: "comprehension_passages_year9"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_results: {
         Row: {
@@ -547,6 +696,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      system_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -736,6 +917,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["student", "parent", "school", "admin"],
@@ -743,3 +927,4 @@ export const Constants = {
     },
   },
 } as const
+

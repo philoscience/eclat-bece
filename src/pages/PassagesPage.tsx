@@ -96,7 +96,7 @@ export default function PassagesPage() {
             const to = from + ITEMS_PER_PAGE - 1;
 
             let query = supabase
-                .from(tableName as any)
+                .from(tableName)
                 .select("*", { count: 'exact' })
                 .order("created_at", { ascending: false })
                 .range(from, to);
@@ -113,7 +113,7 @@ export default function PassagesPage() {
             const passagesWithCounts = await Promise.all(
                 (data || []).map(async (passage) => {
                     const { count: questionCount } = await supabase
-                        .from(questionsTableName as any)
+                        .from(questionsTableName)
                         .select("*", { count: 'exact', head: true })
                         .eq('passage_id', passage.id);
 
@@ -129,7 +129,7 @@ export default function PassagesPage() {
             setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
         } catch (error: any) {
             console.error("Error fetching passages:", error);
-            toast.error("Failed to load passages");
+            toast.error(`Failed to load passages: ${error.message || 'Unknown error'}`);
         } finally {
             setLoading(false);
         }
@@ -144,7 +144,7 @@ export default function PassagesPage() {
                 : 'comprehension_passages_year9';
 
             const { error } = await supabase
-                .from(tableName as any)
+                .from(tableName)
                 .delete()
                 .eq("id", deleteId);
 

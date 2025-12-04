@@ -123,15 +123,15 @@ export function AddQuestionDialog({ onSuccess }: AddQuestionDialogProps) {
                 : 'comprehension_passages_year9';
 
             const { data, error } = await supabase
-                .from(tableName as any)
+                .from(tableName)
                 .select('id, title, passage_text')
                 .order('title', { ascending: true, nullsFirst: false });
 
             if (error) throw error;
             setPassages(data || []);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching passages:', error);
-            toast.error('Failed to load passages');
+            toast.error(`Failed to load passages: ${error.message || 'Unknown error'}`);
         }
     };
 
