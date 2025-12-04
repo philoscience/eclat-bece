@@ -74,60 +74,112 @@ export function AddAdminDialog({ onSuccess }: AddAdminDialogProps) {
 
             const targetUserId = profiles[0].id;
 
-            // 2. Add admin role
-            const { error: roleError } = await supabase
-                .from("user_roles")
-                .insert({
-                    user_id: targetUserId,
-                    role: "admin" as any, // Cast for now
-                });
+            // 2. Check if user is already an admin
+            const { data: existingAdmin } = await supabase
+                .from("admins")
+                .select("id")
+                .eq("user_id", targetUserId)
+                .maybeSingle();
 
-            if (roleError) {
-                if (roleError.code === "23505") { // Unique violation
-                    // Role might already exist, which is fine, continue to admin record
-                    console.log("User already has admin role");
-                } else {
-                    throw roleError;
+            if (existingAdmin) {
+                toast.error("This user is already an admin.");
+                setLoading(false);
+                return;
+            }
+
+            // 3. Check for existing pending invitation
+            const { data: existingInvitation } = await supabase
+                .from("admin_invitations" as any)
+                .select("id, status, expires_at")
+                .eq("target_user_id", targetUserId)
+                .eq("status", "pending")
+                .maybeSingle();
+
+            if (existingInvitation) {
+                const expiresAt = new Date(existingInvitation.expires_at);
+                if (expiresAt > new Date()) {
+                    toast.error("An active invitation already exists for this user.");
+                    setLoading(false);
+                    return;
                 }
             }
 
-            // 3. Create admin record
-            const { data: newAdmin, error: adminError } = await supabase
-                .from("admins" as any)
+            // 4. Generate invitation token
+            const { data: tokenData, error: tokenError } = await supabase
+                .rpc('generate_invitation_token' as any);
+
+            if (tokenError) throw tokenError;
+            const token = tokenData as string;
+
+            // 5. Create invitation
+            const expiresAt = new Date();
+            expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours from now
+
+            const { error: invitationError } = await supabase
+                .from("admin_invitations" as any)
                 .insert({
-                    user_id: targetUserId,
+                    target_user_id: targetUserId,
+                    invited_by: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
+                    token: token,
                     full_name: values.fullName,
                     is_super_admin: values.isSuperAdmin,
-                    created_by: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
-                    is_active: true,
-                })
-                .select('id')
-                .single();
-
-            if (adminError) throw adminError;
-
-            // 4. Log action
-            const adminRecord = newAdmin as unknown as { id: string } | null;
-            if (adminRecord?.id) {
-                await supabase.rpc('log_admin_action', {
-                    _admin_id: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
-                    _action: 'create_admin',
-                    _resource_type: 'admin',
-                    _resource_id: adminRecord.id,
-                    _details: {
-                        target_user_email: values.email,
-                        is_super_admin: values.isSuperAdmin
-                    }
+                    expires_at: expiresAt.toISOString(),
                 });
+
+            if (invitationError) throw invitationError;
+
+            // 6. Send invitation email via Edge Function
+            try {
+                const { data: invitationRecord } = await supabase
+                    .from("admin_invitations" as any)
+                    .select("id")
+                    .eq("token", token)
+                    .single();
+
+                if (invitationRecord) {
+                    const { error: emailError } = await supabase.functions.invoke('send-admin-invitation', {
+                        body: { invitationId: invitationRecord.id }
+                    });
+
+                    if (emailError) {
+                        console.error("Error sending invitation email:", emailError);
+                        toast.warning("Invitation created but email failed to send. Please share the link manually.");
+                    }
+                }
+            } catch (emailError) {
+                console.error("Error sending invitation email:", emailError);
+                // Don't fail the whole operation if email fails
             }
 
-            toast.success("Admin added successfully");
+            // 7. Log action
+            await supabase.rpc('log_admin_action', {
+                _admin_id: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
+                _action: 'create_invitation',
+                _resource_type: 'admin_invitation',
+                _resource_id: null,
+                _details: {
+                    target_user_email: values.email,
+                    is_super_admin: values.isSuperAdmin,
+                    expires_at: expiresAt.toISOString()
+                }
+            });
+
+            // 8. Generate invitation link
+            const invitationLink = `${window.location.origin}/admin/accept-invitation/${token}`;
+
+            // Show success with link
+            toast.success("Admin invitation sent successfully!");
+            toast.info("Invitation email sent to " + values.email);
+
+            // Copy link to clipboard as backup
+            await navigator.clipboard.writeText(invitationLink);
+
             setOpen(false);
             form.reset();
             onSuccess();
         } catch (error: any) {
-            console.error("Error adding admin:", error);
-            toast.error(error.message || "Failed to add admin");
+            console.error("Error creating invitation:", error);
+            toast.error(error.message || "Failed to create invitation");
         } finally {
             setLoading(false);
         }
@@ -143,9 +195,9 @@ export function AddAdminDialog({ onSuccess }: AddAdminDialogProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Admin</DialogTitle>
+                    <DialogTitle>Send Admin Invitation</DialogTitle>
                     <DialogDescription>
-                        Grant admin privileges to an existing user. They must already have an account.
+                        Send an invitation to grant admin privileges. The user must accept within 24 hours.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -202,7 +254,7 @@ export function AddAdminDialog({ onSuccess }: AddAdminDialogProps) {
                         <DialogFooter>
                             <Button type="submit" disabled={loading}>
                                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Admin
+                                Send Invitation
                             </Button>
                         </DialogFooter>
                     </form>
