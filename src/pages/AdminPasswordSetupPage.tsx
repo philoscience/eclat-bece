@@ -55,35 +55,20 @@ export default function AdminPasswordSetupPage() {
 
     const loadInvitation = async () => {
         try {
-            // Load invitation details (no auth required)
-            const { data: invitationData, error: invitationError } = await supabase
-                .from("admin_invitations" as any)
-                .select("target_email, full_name, is_super_admin, status, expires_at")
-                .eq("token", token)
-                .maybeSingle();
+            // Load invitation details using secure RPC (works for anon users)
+            const { data, error } = await supabase
+                .rpc('get_invitation_details', { _token: token });
 
-            if (invitationError) throw invitationError;
+            if (error) throw error;
 
-            if (!invitationData) {
-                setError("Invalid invitation link.");
+            const result = data as any;
+            if (!result.success || !result.invitation) {
+                setError(result.error || "Invalid invitation link.");
                 setLoading(false);
                 return;
             }
 
-            // Check if already accepted
-            if (invitationData.status === "accepted") {
-                setError("This invitation has already been used.");
-                setLoading(false);
-                return;
-            }
-
-            // Check if expired
-            const expiresAt = new Date(invitationData.expires_at);
-            if (expiresAt < new Date() || invitationData.status === "expired") {
-                setError("This invitation has expired.");
-                setLoading(false);
-                return;
-            }
+            const invitationData = result.invitation;
 
             setInvitation({
                 email: invitationData.target_email,
