@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Trophy, TrendingUp, Activity, Shield } from "lucide-react";
+import { Users, BookOpen, Trophy, TrendingUp, Activity, Shield, ChevronLeft, ChevronRight, UserPlus, UserMinus, Edit, Trash2, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 
 interface PlatformStats {
@@ -19,6 +20,7 @@ interface RecentActivity {
     id: string;
     action: string;
     resource_type: string;
+    resource_id: string | null;
     details: any;
     created_at: string;
     admin: {
@@ -40,12 +42,15 @@ export default function AdminDashboard() {
     });
     const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     useEffect(() => {
         fetchAdminData();
         fetchPlatformStats();
         fetchRecentActivity();
-    }, [user]);
+    }, [user, currentPage]);
 
     const fetchAdminData = async () => {
         if (!user) return;
@@ -118,21 +123,23 @@ export default function AdminDashboard() {
 
     const fetchRecentActivity = async () => {
         try {
-            const { data } = await supabase
+            const { data, count } = await supabase
                 .from("admin_audit_log" as any)
                 .select(`
           id,
           action,
           resource_type,
+          resource_id,
           details,
           created_at,
           admin:admins(full_name)
-        `)
+        `, { count: 'exact' })
                 .order("created_at", { ascending: false })
-                .limit(10) as any;
+                .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1) as any;
 
             if (data) {
                 setRecentActivity(data as RecentActivity[]);
+                setTotalPages(Math.ceil((count || 0) / ITEMS_PER_PAGE));
             }
         } catch (error) {
             console.error("Error fetching recent activity:", error);
@@ -190,9 +197,58 @@ export default function AdminDashboard() {
         },
     ];
 
-    const getActionDescription = (activity: RecentActivity) => {
+    const getActivityInfo = (activity: RecentActivity) => {
         const adminName = activity.admin?.full_name || "Unknown Admin";
-        return `${adminName} ${activity.action.replace(/_/g, " ")} a ${activity.resource_type}`;
+        const action = activity.action;
+        const resourceType = activity.resource_type;
+
+        // Map resource types to friendly names
+        const resourceTypeMap: Record<string, string> = {
+            'admin_invitation': 'admin invitation',
+            'admin': 'administrator',
+            'question': 'question',
+            'passage': 'passage',
+            'user': 'user',
+            'student': 'student',
+            'parent': 'parent',
+            'school': 'school',
+        };
+
+        const friendlyResourceType = resourceTypeMap[resourceType] || resourceType.replace(/_/g, ' ');
+
+        let icon = Activity;
+        let color = "text-gray-600";
+        let bgColor = "bg-gray-100 dark:bg-gray-900/30";
+        let description = "";
+
+        // Determine icon, color, and description based on action
+        if (action.includes("create") || action.includes("add")) {
+            icon = UserPlus;
+            color = "text-green-600";
+            bgColor = "bg-green-100 dark:bg-green-900/30";
+            description = `created ${friendlyResourceType === 'admin invitation' ? 'an' : 'a'} ${friendlyResourceType}`;
+        } else if (action.includes("delete") || action.includes("remove")) {
+            icon = Trash2;
+            color = "text-red-600";
+            bgColor = "bg-red-100 dark:bg-red-900/30";
+            description = `deleted ${friendlyResourceType === 'admin invitation' ? 'an' : 'a'} ${friendlyResourceType}`;
+        } else if (action.includes("update") || action.includes("edit") || action.includes("modify")) {
+            icon = Edit;
+            color = "text-blue-600";
+            bgColor = "bg-blue-100 dark:bg-blue-900/30";
+            description = `updated ${friendlyResourceType === 'admin invitation' ? 'an' : 'a'} ${friendlyResourceType}`;
+        } else if (action.includes("invitation") || action.includes("invite")) {
+            icon = Mail;
+            color = "text-purple-600";
+            bgColor = "bg-purple-100 dark:bg-purple-900/30";
+            description = `sent an invitation`;
+        } else {
+            // Fallback: make action more readable
+            const readableAction = action.replace(/_/g, ' ');
+            description = `performed "${readableAction}" on ${friendlyResourceType}`;
+        }
+
+        return { adminName, description, icon, color, bgColor };
     };
 
     return (
@@ -247,32 +303,77 @@ export default function AdminDashboard() {
             {/* Recent Activity */}
             <Card className="animate-fade-in">
                 <CardHeader>
-                    <CardTitle>Recent Admin Activity</CardTitle>
-                    <CardDescription>Latest actions performed by administrators</CardDescription>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Recent Admin Activity</CardTitle>
+                            <CardDescription>Latest actions performed by administrators</CardDescription>
+                        </div>
+                        {totalPages > 1 && (
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <span className="text-sm text-muted-foreground">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {recentActivity.length === 0 ? (
-                        <div className="text-center py-8">
+                        <div className="text-center py-12">
                             <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
                             <p className="text-muted-foreground">No recent activity</p>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {recentActivity.map((activity) => (
-                                <div
-                                    key={activity.id}
-                                    className="flex items-start gap-4 p-4 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 transition-colors"
-                                >
-                                    <div className="flex-1">
-                                        <p className="font-medium text-foreground">
-                                            {getActionDescription(activity)}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-                                        </p>
+                        <div className="space-y-3">
+                            {recentActivity.map((activity) => {
+                                const { adminName, description, icon: Icon, color, bgColor } = getActivityInfo(activity);
+                                return (
+                                    <div
+                                        key={activity.id}
+                                        className="flex items-start gap-4 p-4 rounded-lg border border-border/50 hover:border-border hover:shadow-sm transition-all duration-200"
+                                    >
+                                        <div className={`p-2.5 rounded-lg ${bgColor} flex-shrink-0`}>
+                                            <Icon className={`w-5 h-5 ${color}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex-1">
+                                                    <p className="font-medium text-foreground">
+                                                        <span className="text-primary">{adminName}</span>
+                                                        {" "}
+                                                        <span className="text-muted-foreground font-normal">{description}</span>
+                                                    </p>
+                                                    {activity.details && Object.keys(activity.details).length > 0 && (
+                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                            {activity.details.email && `Email: ${activity.details.email}`}
+                                                            {activity.details.question_text && `Question: ${activity.details.question_text.substring(0, 50)}...`}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                                    {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </CardContent>
