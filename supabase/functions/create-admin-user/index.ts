@@ -80,15 +80,17 @@ serve(async (req) => {
             throw new Error(`Failed to create user: ${userError?.message}`)
         }
 
-        console.log('Step 4: Creating profile...')
+        console.log('Step 4: Creating/updating profile...')
 
-        // 4. Create profile
+        // 4. Create or update profile (upsert in case trigger already created it)
         const { error: profileError } = await supabaseAdmin
             .from('profiles')
-            .insert({
+            .upsert({
                 id: newUser.user.id,
                 email: invitation.target_email,
                 full_name: invitation.full_name
+            }, {
+                onConflict: 'id'
             })
 
         if (profileError) {
