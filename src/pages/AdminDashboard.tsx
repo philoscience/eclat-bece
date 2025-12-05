@@ -140,7 +140,7 @@ export default function AdminDashboard() {
 
     const fetchRecentActivity = async () => {
         try {
-            const { data, count } = await supabase
+            let query = supabase
                 .from("admin_audit_log" as any)
                 .select(`
           id,
@@ -150,7 +150,26 @@ export default function AdminDashboard() {
           details,
           created_at,
           admin:admins(full_name)
-        `, { count: 'exact' })
+        `, { count: 'exact' });
+
+            // Apply action filter
+            if (actionFilter !== "all") {
+                query = query.ilike('action', `%${actionFilter}%`);
+            }
+
+            // Apply resource filter
+            if (resourceFilter !== "all") {
+                query = query.eq('resource_type', resourceFilter);
+            }
+
+            // Apply search (search in admin name or details)
+            if (searchQuery) {
+                // Note: This is a simplified search. For better performance,
+                // consider using PostgreSQL full-text search
+                query = query.or(`details->>admin_name.ilike.%${searchQuery}%,details->>admin_email.ilike.%${searchQuery}%,details->>target_user_email.ilike.%${searchQuery}%,details->>email.ilike.%${searchQuery}%`);
+            }
+
+            const { data, count } = await query
                 .order("created_at", { ascending: false })
                 .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1) as any;
 
@@ -284,6 +303,40 @@ export default function AdminDashboard() {
         return { adminName, description, icon, color, bgColor };
     };
 
+    const exportToCSV = () => {
+        // Create CSV header
+        const headers = ['Date', 'Admin', 'Action', 'Resource Type', 'Details'];
+
+        // Create CSV rows
+        const rows = recentActivity.map(activity => {
+            const { adminName, description } = getActivityInfo(activity);
+            const date = new Date(activity.created_at).toLocaleString();
+            const details = activity.details ? JSON.stringify(activity.details) : '';
+
+            return [
+                date,
+                adminName,
+                description,
+                activity.resource_type,
+                details
+            ].map(field => `"${field}"`).join(',');
+        });
+
+        // Combine header and rows
+        const csv = [headers.join(','), ...rows].join('\n');
+
+        // Create and download file
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `admin-activity-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="space-y-8">
             {/* Header */}
@@ -336,13 +389,72 @@ export default function AdminDashboard() {
             {/* Recent Activity */}
             <Card className="animate-fade-in">
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>Recent Admin Activity</CardTitle>
-                            <CardDescription>Latest actions performed by administrators</CardDescription>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle>Recent Admin Activity</CardTitle>
+                                <CardDescription>Latest actions performed by administrators</CardDescription>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={exportToCSV}
+                                disabled={recentActivity.length === 0}
+                            >
+                                <Download className="h-4 w-4 mr-2" />
+                                Export CSV
+                            </Button>
                         </div>
+
+                        {/* Filters and Search */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            {/* Search */}
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by email or details..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-9"
+                                />
+                            </div>
+
+                            {/* Action Filter */}
+                            <Select value={actionFilter} onValueChange={setActionFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <Filter className="h-4 w-4 mr-2" />
+                                    <SelectValue placeholder="Action type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Actions</SelectItem>
+                                    <SelectItem value="create">Create</SelectItem>
+                                    <SelectItem value="delete">Delete</SelectItem>
+                                    <SelectItem value="update">Update</SelectItem>
+                                    <SelectItem value="deactivate">Deactivate</SelectItem>
+                                    <SelectItem value="reactivate">Reactivate</SelectItem>
+                                    <SelectItem value="invitation">Invitation</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {/* Resource Filter */}
+                            <Select value={resourceFilter} onValueChange={setResourceFilter}>
+                                <SelectTrigger className="w-full sm:w-[180px]">
+                                    <SelectValue placeholder="Resource type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Resources</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="admin_invitation">Invitation</SelectItem>
+                                    <SelectItem value="question">Question</SelectItem>
+                                    <SelectItem value="passage">Passage</SelectItem>
+                                    <SelectItem value="comprehension_passage">Passage</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-center gap-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
