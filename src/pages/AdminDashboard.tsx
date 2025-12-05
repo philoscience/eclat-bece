@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, Trophy, TrendingUp, Activity, Shield, ChevronLeft, ChevronRight, UserPlus, UserMinus, Edit, Trash2, Mail } from "lucide-react";
+import { Users, BookOpen, Trophy, TrendingUp, Activity, Shield, ChevronLeft, ChevronRight, UserPlus, UserMinus, Edit, Trash2, Mail, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
@@ -208,6 +208,7 @@ export default function AdminDashboard() {
             'admin': 'administrator',
             'question': 'question',
             'passage': 'passage',
+            'comprehension_passage': 'passage',
             'user': 'user',
             'student': 'student',
             'parent': 'parent',
@@ -242,6 +243,11 @@ export default function AdminDashboard() {
             color = "text-purple-600";
             bgColor = "bg-purple-100 dark:bg-purple-900/30";
             description = `sent an invitation`;
+        } else if (action.includes("bulk_upload")) {
+            icon = Upload;
+            color = "text-indigo-600";
+            bgColor = "bg-indigo-100 dark:bg-indigo-900/30";
+            description = `uploaded questions via CSV`;
         } else {
             // Fallback: make action more readable
             const readableAction = action.replace(/_/g, ' ');

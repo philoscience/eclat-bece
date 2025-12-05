@@ -28,6 +28,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import { AddPassageDialog } from "@/components/admin/AddPassageDialog";
 import {
     AlertDialog,
@@ -60,6 +61,7 @@ interface Passage {
 const ITEMS_PER_PAGE = 20;
 
 export default function PassagesPage() {
+    const { user } = useAuth();
     const [passages, setPassages] = useState<Passage[]>([]);
     const [loading, setLoading] = useState(true);
     const [classYear, setClassYear] = useState<"year_6" | "year_9">("year_6");
@@ -136,12 +138,19 @@ export default function PassagesPage() {
     };
 
     const handleDelete = async () => {
-        if (!deleteId) return;
+        if (!deleteId || !user) return;
 
         try {
             const tableName = classYear === 'year_6'
                 ? 'comprehension_passages_year6'
                 : 'comprehension_passages_year9';
+
+            // Get passage details before deletion for logging
+            const { data: passageData } = await supabase
+                .from(tableName)
+                .select('title, passage_text')
+                .eq('id', deleteId)
+                .single();
 
             const { error } = await supabase
                 .from(tableName)
@@ -149,6 +158,23 @@ export default function PassagesPage() {
                 .eq("id", deleteId);
 
             if (error) throw error;
+
+            // Log the deletion
+            try {
+                await supabase.rpc('log_admin_action', {
+                    _admin_id: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
+                    _action: 'delete_passage',
+                    _resource_type: 'passage',
+                    _resource_id: deleteId,
+                    _details: {
+                        title: passageData?.title,
+                        class_year: classYear,
+                        passage_preview: passageData?.passage_text?.substring(0, 100)
+                    }
+                });
+            } catch (logError) {
+                console.error('Error logging passage deletion:', logError);
+            }
 
             toast.success("Passage deleted successfully");
             setDeleteId(null);

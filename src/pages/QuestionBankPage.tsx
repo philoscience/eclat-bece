@@ -27,6 +27,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import { AddQuestionDialog } from "@/components/admin/AddQuestionDialog";
 import {
     AlertDialog,
@@ -59,11 +60,13 @@ interface Question {
 const ITEMS_PER_PAGE = 50;
 
 export default function QuestionBankPage() {
+    const { user } = useAuth();
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [classYear, setClassYear] = useState<"year_6" | "year_9">("year_6");
-    const [subjectFilter, setSubjectFilter] = useState("all");
+    const [subjectFilter, setSubjectFilter] = useState<string>("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
     // Pagination state
@@ -125,10 +128,17 @@ export default function QuestionBankPage() {
     };
 
     const handleDelete = async () => {
-        if (!deleteId) return;
+        if (!deleteId || !user) return;
 
         try {
             const tableName = classYear === 'year_6' ? 'quiz_questions_year6' : 'quiz_questions_year9';
+
+            // Get question details before deletion for logging
+            const { data: questionData } = await supabase
+                .from(tableName as any)
+                .select('question_text, subject, topic, difficulty')
+                .eq('id', deleteId)
+                .single();
 
             const { error } = await supabase
                 .from(tableName as any)
@@ -136,6 +146,25 @@ export default function QuestionBankPage() {
                 .eq("id", deleteId);
 
             if (error) throw error;
+
+            // Log the deletion
+            try {
+                await supabase.rpc('log_admin_action', {
+                    _admin_id: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
+                    _action: 'delete_question',
+                    _resource_type: 'question',
+                    _resource_id: deleteId,
+                    _details: {
+                        question_text: questionData?.question_text?.substring(0, 100),
+                        subject: questionData?.subject,
+                        topic: questionData?.topic,
+                        difficulty: questionData?.difficulty,
+                        class_year: classYear
+                    }
+                });
+            } catch (logError) {
+                console.error('Error logging question deletion:', logError);
+            }
 
             toast.success("Question deleted successfully");
             // Refresh current page
