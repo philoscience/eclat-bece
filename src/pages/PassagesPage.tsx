@@ -259,7 +259,6 @@ export default function PassagesPage() {
                                 <TableRow>
                                     <TableHead>Title</TableHead>
                                     <TableHead>Passage Preview</TableHead>
-                                    <TableHead>Topic</TableHead>
                                     <TableHead>Questions</TableHead>
                                     <TableHead>Created</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -275,13 +274,6 @@ export default function PassagesPage() {
                                             <p className="text-sm text-muted-foreground">
                                                 {truncateText(passage.passage_text)}
                                             </p>
-                                        </TableCell>
-                                        <TableCell>
-                                            {passage.topic ? (
-                                                <Badge variant="outline">{passage.topic}</Badge>
-                                            ) : (
-                                                <span className="text-muted-foreground text-sm">-</span>
-                                            )}
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant="secondary">
