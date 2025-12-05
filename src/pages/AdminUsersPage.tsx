@@ -25,13 +25,24 @@ import {
     ShieldAlert,
     CheckCircle2,
     XCircle,
-    Loader2
+    Loader2,
+    Trash2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { AddAdminDialog } from "@/components/admin/AddAdminDialog";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface AdminUser {
     id: string;
@@ -50,6 +61,8 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentUserIsSuperAdmin, setCurrentUserIsSuperAdmin] = useState(false);
+    const [currentAdminId, setCurrentAdminId] = useState<string | null>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -61,6 +74,17 @@ export default function AdminUsersPage() {
         if (!user) return;
         const { data } = await supabase.rpc('is_super_admin', { _user_id: user.id });
         setCurrentUserIsSuperAdmin(!!data);
+
+        // Also get current admin's ID
+        const { data: adminData } = await supabase
+            .from('admins')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+
+        if (adminData) {
+            setCurrentAdminId(adminData.id);
+        }
     };
 
     const fetchAdmins = async () => {
@@ -132,7 +156,7 @@ export default function AdminUsersPage() {
                     _resource_id: adminId,
                     _details: {
                         admin_name: adminToUpdate?.full_name,
-                        admin_email: adminToUpdate?.email,
+                        admin_email: adminToUpdate?.profiles?.email,
                         is_super_admin: adminToUpdate?.is_super_admin,
                         previous_status: currentStatus ? 'active' : 'inactive',
                         new_status: currentStatus ? 'inactive' : 'active'
@@ -147,6 +171,48 @@ export default function AdminUsersPage() {
         } catch (error) {
             console.error("Error updating admin status:", error);
             toast.error("Failed to update admin status");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!deleteId || !user) return;
+
+        try {
+            // Get admin details before deletion for logging
+            const adminToDelete = admins.find(a => a.id === deleteId);
+
+            // Delete from admins table (will cascade to user_roles)
+            const { error } = await supabase
+                .from("admins" as any)
+                .delete()
+                .eq("id", deleteId);
+
+            if (error) throw error;
+
+            // Log the deletion
+            try {
+                await supabase.rpc('log_admin_action', {
+                    _admin_id: (await supabase.rpc('get_admin_id', { _user_id: user.id })).data,
+                    _action: 'delete_admin',
+                    _resource_type: 'admin',
+                    _resource_id: deleteId,
+                    _details: {
+                        admin_name: adminToDelete?.full_name,
+                        admin_email: adminToDelete?.profiles?.email,
+                        is_super_admin: adminToDelete?.is_super_admin,
+                        was_active: adminToDelete?.is_active
+                    }
+                });
+            } catch (logError) {
+                console.error('Error logging admin deletion:', logError);
+            }
+
+            toast.success("Admin deleted successfully");
+            setDeleteId(null);
+            fetchAdmins();
+        } catch (error) {
+            console.error("Error deleting admin:", error);
+            toast.error("Failed to delete admin");
         }
     };
 
@@ -266,9 +332,24 @@ export default function AdminUsersPage() {
                                                     <DropdownMenuItem
                                                         onClick={() => toggleAdminStatus(admin.id, admin.is_active)}
                                                         className={admin.is_active ? "text-destructive" : "text-green-600"}
+                                                        disabled={admin.id === currentAdminId}
                                                     >
                                                         {admin.is_active ? "Deactivate Account" : "Activate Account"}
+                                                        {admin.id === currentAdminId && " (You)"}
                                                     </DropdownMenuItem>
+
+                                                    {/* Delete option: Only for super admins, only on regular admins */}
+                                                    {currentUserIsSuperAdmin && !admin.is_super_admin && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => setDeleteId(admin.id)}
+                                                            className="text-destructive"
+                                                            disabled={admin.id === currentAdminId}
+                                                        >
+                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            Delete Admin
+                                                            {admin.id === currentAdminId && " (You)"}
+                                                        </DropdownMenuItem>
+                                                    )}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         )}
@@ -279,6 +360,28 @@ export default function AdminUsersPage() {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Admin Account</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this admin account? This action cannot be undone.
+                            The admin will lose all access to the system.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete Admin
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
