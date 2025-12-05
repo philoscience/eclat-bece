@@ -432,6 +432,7 @@ export default function AdminDashboard() {
                                     <SelectItem value="update">Update</SelectItem>
                                     <SelectItem value="deactivate">Deactivate</SelectItem>
                                     <SelectItem value="reactivate">Reactivate</SelectItem>
+                                    <SelectItem value="invitation">Invitation</SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -443,7 +444,6 @@ export default function AdminDashboard() {
                                 <SelectContent>
                                     <SelectItem value="all">All Resources</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="admin_invitation">Invitation</SelectItem>
                                     <SelectItem value="question">Question</SelectItem>
                                     <SelectItem value="passage">Passage</SelectItem>
                                 </SelectContent>
