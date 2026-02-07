@@ -29,6 +29,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { AddQuestionDialog } from "@/components/admin/AddQuestionDialog";
+import { EditQuestionDialog } from "@/components/admin/EditQuestionDialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -68,6 +69,7 @@ export default function QuestionBankPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [editQuestion, setEditQuestion] = useState<{ id: string; classYear: "year_6" | "year_9" } | null>(null);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -300,7 +302,12 @@ export default function QuestionBankPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                onClick={() => setEditQuestion({ id: question.id, classYear })}
+                                            >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
                                             <Button
@@ -389,6 +396,15 @@ export default function QuestionBankPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Edit Question Dialog */}
+            <EditQuestionDialog
+                open={!!editQuestion}
+                onOpenChange={(open) => !open && setEditQuestion(null)}
+                questionId={editQuestion?.id || ""}
+                classYear={editQuestion?.classYear || "year_6"}
+                onSuccess={fetchQuestions}
+            />
         </div>
     );
 }
