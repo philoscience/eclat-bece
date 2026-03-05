@@ -344,7 +344,7 @@ export default function ParentDashboard() {
           </div>
 
           {/* Right Column: Activity Feed & Sidebar */}
-          <div className="lg:col-span-4 space-y-10">
+          <div className="lg:col-span-4 space-y-10 lg:pt-[60px]">
             <ParentActivityFeed activities={globalActivities} isLoading={isLoading} />
 
             <div id="resources" className="scroll-mt-24 space-y-6">
