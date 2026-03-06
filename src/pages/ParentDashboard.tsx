@@ -187,10 +187,6 @@ export default function ParentDashboard() {
           <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">Parent Portal <span className="text-primary">.</span></h2>
           <p className="text-muted-foreground font-medium text-sm sm:text-base">Empowering your children's educational success with data-driven insights.</p>
         </div>
-        <Button size="lg" variant="hero" onClick={() => setAddChildOpen(true)} className="rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 h-14">
-          <Plus size={20} className="mr-2 stroke-[3px]" />
-          Add New Child
-        </Button>
       </div>
 
       {/* Top-Level Overview Metrics */}
