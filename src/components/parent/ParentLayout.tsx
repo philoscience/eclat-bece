@@ -25,7 +25,7 @@ export function ParentLayout({ children }: ParentLayoutProps) {
     const navItems = [
         { title: "Dashboard", url: "/dashboard/parent", icon: LayoutDashboard },
         { title: "Children", url: "/dashboard/parent/children", icon: Users },
-        { title: "Billing", url: "/dashboard/parent#subscriptions", icon: CreditCard },
+        { title: "Billing", url: "/dashboard/parent/subscriptions", icon: CreditCard },
         { title: "Resources", url: "/dashboard/parent#resources", icon: HelpCircle },
     ];
 

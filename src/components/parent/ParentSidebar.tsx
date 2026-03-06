@@ -19,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const menuItems = [
     { title: "Dashboard", url: "/dashboard/parent", icon: LayoutDashboard },
     { title: "My Children", url: "/dashboard/parent/children", icon: Users },
-    { title: "Subscriptions", url: "/dashboard/parent#subscriptions", icon: CreditCard },
+    { title: "Subscriptions", url: "/dashboard/parent/subscriptions", icon: CreditCard },
     { title: "Help & Resources", url: "/dashboard/parent#resources", icon: HelpCircle },
 ];
 

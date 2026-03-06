@@ -33,14 +33,12 @@ export function DummyPaymentModal({
         setIsProcessing(true);
 
         try {
-            // Simulate API call delay
+            // Simulate payment processing delay
             await new Promise((resolve) => setTimeout(resolve, 1500));
 
-            // Update student to premium
-            const { error } = await supabase
-                .from("students")
-                .update({ is_premium: true })
-                .eq("id", studentId);
+            const { error } = await supabase.functions.invoke("manage-student-account", {
+                body: { studentId, action: "upgrade-premium" },
+            });
 
             if (error) throw error;
 
