@@ -117,6 +117,13 @@ serve(async (req) => {
                 });
             }
 
+            if (username.length < 2 || username.length > 10) {
+                return new Response(JSON.stringify({ error: "Username must be between 2 and 10 characters" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json", ...corsHeaders },
+                });
+            }
+
             // Check if username is already taken by someone else
             const { data: existingUser, error: checkError } = await adminClient
                 .from("profiles")

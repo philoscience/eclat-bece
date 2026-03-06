@@ -29,6 +29,11 @@ export function AddChildDialog({ open, onOpenChange, parentId, onSuccess }: AddC
             return;
         }
 
+        if (newChildData.username.length < 2 || newChildData.username.length > 10) {
+            toast.error("Username must be between 2 and 10 characters");
+            return;
+        }
+
         if (newChildData.password.length < 6) {
             toast.error("Password must be at least 6 characters");
             return;

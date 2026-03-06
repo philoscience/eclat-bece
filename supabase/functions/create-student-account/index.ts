@@ -60,6 +60,13 @@ serve(async (req) => {
       });
     }
 
+    if (username.length < 2 || username.length > 10) {
+      return new Response(JSON.stringify({ error: "Username must be between 2 and 10 characters" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const dummyEmail = `${username.trim().toLowerCase()}@student.eclat.com`;
 
     // 1. Create User via Admin API

@@ -29,6 +29,12 @@ export function EditChildUsernameDialog({ open, onOpenChange, child, onSuccess }
         if (!child || !username.trim()) return;
 
         const normalizedUsername = username.trim().toLowerCase();
+
+        if (normalizedUsername.length < 2 || normalizedUsername.length > 10) {
+            toast.error("Username must be between 2 and 10 characters");
+            return;
+        }
+
         if (normalizedUsername === child.profile.username?.toLowerCase()) {
             onOpenChange(false);
             return;
@@ -86,7 +92,7 @@ export function EditChildUsernameDialog({ open, onOpenChange, child, onSuccess }
                             required
                         />
                         <p className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5 px-1">
-                            Username must be lowercase and contain no spaces.
+                            Username must be 2-10 characters, lowercase, and contain no spaces.
                         </p>
                     </div>
                     <DialogFooter className="pt-2">
