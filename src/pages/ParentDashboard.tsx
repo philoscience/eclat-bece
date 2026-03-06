@@ -12,7 +12,6 @@ import { ParentActivityFeed } from "@/components/parent/ParentActivityFeed";
 import { DeleteChildDialog } from "@/components/parent/DeleteChildDialog";
 import { AddChildDialog } from "@/components/parent/AddChildDialog";
 import { EditChildNameDialog } from "@/components/parent/EditChildNameDialog";
-import { EditChildUsernameDialog } from "@/components/parent/EditChildUsernameDialog";
 import { ChangeChildPasswordDialog } from "@/components/parent/ChangeChildPasswordDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,7 +35,6 @@ export default function ParentDashboard() {
   const [managedChild, setManagedChild] = useState<LinkedChild | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [editNameOpen, setEditNameOpen] = useState(false);
-  const [editUsernameOpen, setEditUsernameOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   // Derived Top-Level Metrics
@@ -314,10 +312,6 @@ export default function ParentDashboard() {
                     setManagedChild(c);
                     setEditNameOpen(true);
                   }}
-                  onEditUsername={(c) => {
-                    setManagedChild(c);
-                    setEditUsernameOpen(true);
-                  }}
                   onChangePassword={(c) => {
                     setManagedChild(c);
                     setChangePasswordOpen(true);
@@ -410,13 +404,6 @@ export default function ParentDashboard() {
       <EditChildNameDialog
         open={editNameOpen}
         onOpenChange={setEditNameOpen}
-        child={managedChild}
-        onSuccess={() => parentUserId && fetchLinkedChildren(parentUserId)}
-      />
-
-      <EditChildUsernameDialog
-        open={editUsernameOpen}
-        onOpenChange={setEditUsernameOpen}
         child={managedChild}
         onSuccess={() => parentUserId && fetchLinkedChildren(parentUserId)}
       />

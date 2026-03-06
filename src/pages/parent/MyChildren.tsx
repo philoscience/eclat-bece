@@ -12,7 +12,6 @@ import { DummyPaymentModal } from "@/components/parent/DummyPaymentModal";
 import { AddChildDialog } from "@/components/parent/AddChildDialog";
 import { DeleteChildDialog } from "@/components/parent/DeleteChildDialog";
 import { EditChildNameDialog } from "@/components/parent/EditChildNameDialog";
-import { EditChildUsernameDialog } from "@/components/parent/EditChildUsernameDialog";
 import { ChangeChildPasswordDialog } from "@/components/parent/ChangeChildPasswordDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -33,7 +32,6 @@ export default function MyChildren() {
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [editNameOpen, setEditNameOpen] = useState(false);
-    const [editUsernameOpen, setEditUsernameOpen] = useState(false);
     const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
     const [selectedChild, setSelectedChild] = useState<LinkedChild | null>(null);
@@ -243,10 +241,6 @@ export default function MyChildren() {
                                 setSelectedChild(c);
                                 setEditNameOpen(true);
                             }}
-                            onEditUsername={(c) => {
-                                setSelectedChild(c);
-                                setEditUsernameOpen(true);
-                            }}
                             onChangePassword={(c) => {
                                 setSelectedChild(c);
                                 setChangePasswordOpen(true);
@@ -315,13 +309,6 @@ export default function MyChildren() {
             <EditChildNameDialog
                 open={editNameOpen}
                 onOpenChange={setEditNameOpen}
-                child={selectedChild}
-                onSuccess={() => parentUserId && fetchChildren(parentUserId)}
-            />
-
-            <EditChildUsernameDialog
-                open={editUsernameOpen}
-                onOpenChange={setEditUsernameOpen}
                 child={selectedChild}
                 onSuccess={() => parentUserId && fetchChildren(parentUserId)}
             />
