@@ -49,6 +49,17 @@ export function ChildOverviewCard({
         }
     };
 
+    const handleCopyId = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (child.profile.unique_id) {
+            navigator.clipboard.writeText(child.profile.unique_id);
+            toast.success("Student ID copied to clipboard", {
+                description: child.profile.unique_id,
+                duration: 2000,
+            });
+        }
+    };
+
     return (
         <Card
             className="group border-2 hover:border-primary/30 hover:shadow-xl transition-all duration-300 animate-scale-in overflow-hidden relative"
@@ -90,8 +101,12 @@ export function ChildOverviewCard({
                                         {child.class_year === "year_6" ? "Year 6" : child.class_year === "year_9" ? "Year 9" : "N/A"}
                                     </span>
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <span className="text-[10px] font-mono text-muted-foreground/60 bg-muted/30 px-2 py-0.5 rounded-lg border border-border/50 whitespace-nowrap">
-                                            ID: {child.profile.unique_id}
+                                        <span
+                                            className="text-[10px] font-mono text-muted-foreground/60 bg-muted/30 px-2 py-0.5 rounded-lg border border-border/50 whitespace-nowrap cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 touch-none selection:bg-transparent"
+                                            title={`Click to copy: ${child.profile.unique_id}`}
+                                            onClick={handleCopyId}
+                                        >
+                                            {child.profile.unique_id}
                                         </span>
                                         {child.profile.username && (
                                             <span
