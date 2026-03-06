@@ -322,7 +322,11 @@ export default function ParentDashboard() {
           </div>
 
           {/* Right Column: Activity Feed & Sidebar */}
-          <div className="lg:col-span-4 space-y-10">
+          <div className="lg:col-span-4 space-y-8">
+            <div className="flex items-center gap-3 mb-2 px-1">
+              <div className="h-8 w-1.5 bg-primary rounded-full" />
+              <h3 className="text-2xl font-black text-foreground tracking-tight uppercase">Activity Feed</h3>
+            </div>
             <ParentActivityFeed activities={globalActivities} isLoading={isLoading} />
           </div>
         </div>
