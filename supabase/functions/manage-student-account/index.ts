@@ -130,6 +130,63 @@ serve(async (req) => {
                 headers: { "Content-Type": "application/json", ...corsHeaders },
             });
 
+        } else if (action === "edit-username") {
+            if (!username) {
+                return new Response(JSON.stringify({ error: "Username is required" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json", ...corsHeaders },
+                });
+            }
+
+            const normalizedUsername = username.trim().toLowerCase();
+            const newEmail = `${normalizedUsername}@student.eclat.com`;
+
+            // 1. Check if username is already taken in profiles
+            const { data: existingProfile, error: checkError } = await adminClient
+                .from("profiles")
+                .select("id")
+                .eq("username", normalizedUsername)
+                .maybeSingle();
+
+            if (checkError) throw checkError;
+            if (existingProfile && existingProfile.id !== studentUserId) {
+                return new Response(JSON.stringify({ error: "Username is already taken" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json", ...corsHeaders },
+                });
+            }
+
+            // 2. Update Auth Email (this is how we handle "username" login)
+            const { error: authError } = await adminClient.auth.admin.updateUserById(
+                studentUserId,
+                { email: newEmail, email_confirm: true }
+            );
+
+            if (authError) {
+                // If the email is already taken in auth, it's likely a sync issue
+                if (authError.message.includes("Email already exists")) {
+                    return new Response(JSON.stringify({ error: "This username is already associated with another account" }), {
+                        status: 400,
+                        headers: { "Content-Type": "application/json", ...corsHeaders },
+                    });
+                }
+                throw authError;
+            }
+
+            // 3. Update Profile Username
+            const { error: profileError } = await adminClient
+                .from("profiles")
+                .update({ username: normalizedUsername })
+                .eq("id", studentUserId);
+
+            if (profileError) {
+                throw profileError;
+            }
+
+            return new Response(JSON.stringify({ success: true, message: "Username updated successfully" }), {
+                headers: { "Content-Type": "application/json", ...corsHeaders },
+            });
+
         } else {
             return new Response(JSON.stringify({ error: "Invalid action" }), {
                 status: 400,

@@ -23,6 +23,7 @@ interface ChildOverviewCardProps {
     onUpgradePremium: (child: LinkedChild) => void;
     onDeleteChild: (child: LinkedChild) => void;
     onEditName: (child: LinkedChild) => void;
+    onEditUsername: (child: LinkedChild) => void;
     onChangePassword: (child: LinkedChild) => void;
 }
 
@@ -36,6 +37,7 @@ export function ChildOverviewCard({
     onUpgradePremium,
     onDeleteChild,
     onEditName,
+    onEditUsername,
     onChangePassword
 }: ChildOverviewCardProps) {
     const initials = child.profile.full_name?.charAt(0).toUpperCase() || "?";
@@ -153,6 +155,13 @@ export function ChildOverviewCard({
                                 >
                                     <Key size={14} />
                                     Change Password
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    className="rounded-lg font-bold flex items-center gap-2"
+                                    onClick={() => onEditUsername(child)}
+                                >
+                                    <Fingerprint size={14} />
+                                    Edit Username
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     className="rounded-lg text-destructive font-bold focus:bg-destructive/10 focus:text-destructive flex items-center gap-2"

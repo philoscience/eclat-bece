@@ -34,6 +34,11 @@ export function AddChildDialog({ open, onOpenChange, parentId, onSuccess }: AddC
             return;
         }
 
+        if (/\s/.test(newChildData.username)) {
+            toast.error("Username cannot contain spaces");
+            return;
+        }
+
         if (newChildData.password.length < 6) {
             toast.error("Password must be at least 6 characters");
             return;

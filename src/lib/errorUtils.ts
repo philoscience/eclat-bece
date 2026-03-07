@@ -2,7 +2,7 @@
  * Maps database and application errors to user-friendly messages
  * while logging the full error details for debugging
  */
-export function getSafeErrorMessage(error: any): string {
+export function getSafeErrorMessage(error: any, isStudent: boolean = false): string {
   // Log full error for debugging (only visible in console, not to users)
   console.error('Full error details:', error);
   
@@ -10,7 +10,7 @@ export function getSafeErrorMessage(error: any): string {
   if (error.code) {
     // Unique constraint violation
     if (error.code === '23505') {
-      return 'This record already exists. Please try a different value.';
+      return isStudent ? 'This username is already taken. Please try another.' : 'This record already exists. Please try a different value.';
     }
     
     // Foreign key violation
@@ -35,7 +35,7 @@ export function getSafeErrorMessage(error: any): string {
     
     // Auth-specific errors
     if (msg.includes('invalid login credentials') || msg.includes('invalid email or password')) {
-      return 'Invalid email or password. Please try again.';
+      return isStudent ? 'Invalid username or password. Please try again.' : 'Invalid email or password. Please try again.';
     }
     
     if (msg.includes('email not confirmed') || msg.includes('email not verified')) {
@@ -43,7 +43,7 @@ export function getSafeErrorMessage(error: any): string {
     }
     
     if (msg.includes('user already registered') || msg.includes('user already exists')) {
-      return 'An account with this email already exists.';
+      return isStudent ? 'An account with this username already exists.' : 'An account with this email already exists.';
     }
     
     if (msg.includes('rls') || msg.includes('row level security')) {
