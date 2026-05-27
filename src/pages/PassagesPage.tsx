@@ -30,6 +30,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { AddPassageDialog } from "@/components/admin/AddPassageDialog";
+import { EditPassageDialog } from "@/components/admin/EditPassageDialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -67,6 +68,7 @@ export default function PassagesPage() {
     const [classYear, setClassYear] = useState<"year_6" | "year_9">("year_6");
     const [searchQuery, setSearchQuery] = useState("");
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [editId, setEditId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -288,10 +290,7 @@ export default function PassagesPage() {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    onClick={() => {
-                                                        // TODO: Implement edit functionality
-                                                        toast.info("Edit functionality coming soon");
-                                                    }}
+                                                    onClick={() => setEditId(passage.id)}
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -371,6 +370,16 @@ export default function PassagesPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {editId && (
+                <EditPassageDialog
+                    open={!!editId}
+                    onOpenChange={(open) => { if (!open) setEditId(null); }}
+                    passageId={editId}
+                    classYear={classYear}
+                    onSuccess={fetchPassages}
+                />
+            )}
         </div>
     );
 }
