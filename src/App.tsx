@@ -24,6 +24,8 @@ import StudentLeaderboardPage from "./pages/StudentLeaderboardPage";
 import ParentDashboard from "./pages/ParentDashboard";
 import MyChildren from "./pages/parent/MyChildren";
 import SubscriptionsPage from "./pages/parent/SubscriptionsPage";
+import ParentSettingsPage from "./pages/parent/ParentSettingsPage";
+import ParentResourcesPage from "./pages/parent/ParentResourcesPage";
 import SchoolDashboard from "./pages/SchoolDashboard";
 import QuizPage from "./pages/QuizPage";
 import SubjectAnalytics from "./pages/SubjectAnalytics";
@@ -60,12 +62,6 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/password-reset" element={<PasswordResetPage />} />
               <Route path="/verify-email" element={<EmailVerificationPage />} />
-              {/* Student onboarding is no longer needed as parents provision the account fully */}
-              {/* <Route path="/onboarding/student" element={
-                <ProtectedRoute requiredRole="student">
-                  <StudentOnboarding />
-                </ProtectedRoute>
-              } /> */}
               <Route path="/onboarding/parent" element={
                 <ProtectedRoute requiredRole="parent">
                   <ParentOnboarding />
@@ -129,6 +125,20 @@ const App = () => (
                 <ProtectedRoute requiredRole="parent">
                   <ParentLayout>
                     <SubscriptionsPage />
+                  </ParentLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard/parent/settings" element={
+                <ProtectedRoute requiredRole="parent">
+                  <ParentLayout>
+                    <ParentSettingsPage />
+                  </ParentLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard/parent/resources" element={
+                <ProtectedRoute requiredRole="parent">
+                  <ParentLayout>
+                    <ParentResourcesPage />
                   </ParentLayout>
                 </ProtectedRoute>
               } />

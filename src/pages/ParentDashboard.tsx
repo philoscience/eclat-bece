@@ -18,9 +18,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LinkedChild, ChildAnalytics, QuizResult, Assignment } from "@/types/parent";
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 export default function ParentDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
   const [reportOpen, setReportOpen] = useState(false);
   const [selectedChild, setSelectedChild] = useState<LinkedChild | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -112,14 +116,12 @@ export default function ParentDashboard() {
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase.functions.invoke("delete-student-account", {
+      const { data, error } = await supabase.functions.invoke("delete-student-account", {
         body: { studentId: managedChild.id },
       });
 
-      if (error) {
-        const errorData = await error.context.json();
-        throw new Error(errorData.error || error.message);
-      }
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success(`${managedChild.profile.full_name}'s account deleted.`);
       setDeleteDialogOpen(false);
@@ -128,9 +130,9 @@ export default function ParentDashboard() {
       if (parentUserId) {
         await fetchLinkedChildren(parentUserId);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting child:", error);
-      toast.error(error.message || "Failed to delete student account");
+      toast.error(getErrorMessage(error, "Failed to delete student account"));
     } finally {
       setIsDeleting(false);
     }
@@ -188,12 +190,12 @@ export default function ParentDashboard() {
 
   const fetchChildAssignments = async (studentId: string) => {
     try {
-      const { data, error } = await (supabase
-        .from("practice_assignments" as any)
+      const { data, error } = await supabase
+        .from("practice_assignments")
         .select("*")
         .eq("student_id", studentId)
         .order("created_at", { ascending: false })
-        .limit(5) as any);
+        .limit(5);
 
       if (error) throw error;
 
@@ -362,6 +364,7 @@ export default function ParentDashboard() {
           </div>
         </div>
       )}
+
 
       <StudentReportDialog
         open={reportOpen}

@@ -20,7 +20,7 @@ const menuItems = [
     { title: "Dashboard", url: "/dashboard/parent", icon: LayoutDashboard },
     { title: "My Children", url: "/dashboard/parent/children", icon: Users },
     { title: "Subscriptions", url: "/dashboard/parent/subscriptions", icon: CreditCard },
-    { title: "Help & Resources", url: "/dashboard/parent#resources", icon: HelpCircle },
+    { title: "Help & Resources", url: "/dashboard/parent/resources", icon: HelpCircle },
 ];
 
 export function ParentSidebar() {
@@ -35,7 +35,7 @@ export function ParentSidebar() {
         if (url.includes("#")) {
             return currentPath + location.hash === url;
         }
-        return currentPath === url;
+        return currentPath === url && !location.hash;
     };
 
     return (
