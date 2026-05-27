@@ -142,25 +142,37 @@ export default function ParentSettingsPage() {
     if (!user || !event.target.files || event.target.files.length === 0) return;
     const file = event.target.files[0];
 
-    // File validation
+    // File validation (Explicitly enforce the 5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size must be less than 5MB");
+      event.target.value = "";
       return;
     }
     if (!file.type.startsWith("image/")) {
       toast.error("File must be an image");
+      event.target.value = "";
       return;
     }
 
+    const previousAvatarUrl = avatarUrl;
+    const localUrl = URL.createObjectURL(file);
+
+    // Optimistically update the UI in real time immediately (no lag)
+    setAvatarUrl(localUrl);
+    window.dispatchEvent(new CustomEvent("profile-updated", { 
+      detail: { avatar_url: localUrl } 
+    }));
+
     setUploadingAvatar(true);
     try {
-      // Remove old avatar path if exists
-      if (avatarUrl) {
-        const oldFileName = avatarUrl.split("/").pop();
+      // Remove old avatar path if exists in background
+      if (previousAvatarUrl && !previousAvatarUrl.startsWith("blob:")) {
+        const oldFileName = previousAvatarUrl.split("/").pop();
         if (oldFileName) {
           await supabase.storage
             .from("avatars")
-            .remove([`${user.id}/${oldFileName}`]);
+            .remove([`${user.id}/${oldFileName}`])
+            .catch(err => console.warn("Could not delete old avatar:", err));
         }
       }
 
@@ -179,7 +191,7 @@ export default function ParentSettingsPage() {
         .from("avatars")
         .getPublicUrl(filePath);
 
-      // Update profile avatar url
+      // Update profile avatar url in DB
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
@@ -187,25 +199,46 @@ export default function ParentSettingsPage() {
 
       if (updateError) throw updateError;
 
+      // Update state with permanent public URL
       setAvatarUrl(publicUrl);
+      window.dispatchEvent(new CustomEvent("profile-updated", { 
+        detail: { avatar_url: publicUrl } 
+      }));
       toast.success("Profile avatar updated successfully!");
     } catch (error: any) {
       console.error("Error uploading avatar:", error);
       toast.error("Failed to upload avatar image");
+      
+      // Revert optimistic updates on failure
+      setAvatarUrl(previousAvatarUrl);
+      window.dispatchEvent(new CustomEvent("profile-updated", { 
+        detail: { avatar_url: previousAvatarUrl } 
+      }));
     } finally {
       setUploadingAvatar(false);
+      event.target.value = ""; // Reset file input
     }
   };
 
   const handleRemoveAvatar = async () => {
     if (!user || !avatarUrl) return;
+    const previousAvatarUrl = avatarUrl;
+
+    // Optimistically update the UI in real time immediately (no lag)
+    setAvatarUrl("");
+    window.dispatchEvent(new CustomEvent("profile-updated", { 
+      detail: { avatar_url: "" } 
+    }));
+
     setUploadingAvatar(true);
     try {
-      const fileName = avatarUrl.split("/").pop();
-      if (fileName) {
-        await supabase.storage
-          .from("avatars")
-          .remove([`${user.id}/${fileName}`]);
+      if (!previousAvatarUrl.startsWith("blob:")) {
+        const fileName = previousAvatarUrl.split("/").pop();
+        if (fileName) {
+          await supabase.storage
+            .from("avatars")
+            .remove([`${user.id}/${fileName}`]);
+        }
       }
 
       const { error: updateError } = await supabase
@@ -215,11 +248,16 @@ export default function ParentSettingsPage() {
 
       if (updateError) throw updateError;
 
-      setAvatarUrl("");
       toast.success("Avatar image removed");
     } catch (error: any) {
       console.error("Error removing avatar:", error);
       toast.error("Failed to remove avatar");
+
+      // Revert optimistic updates on failure
+      setAvatarUrl(previousAvatarUrl);
+      window.dispatchEvent(new CustomEvent("profile-updated", { 
+        detail: { avatar_url: previousAvatarUrl } 
+      }));
     } finally {
       setUploadingAvatar(false);
     }
@@ -254,6 +292,11 @@ export default function ParentSettingsPage() {
         .eq("id", user.id);
 
       if (profileError) throw profileError;
+
+      // Update layout header display name in real time
+      window.dispatchEvent(new CustomEvent("profile-updated", { 
+        detail: { full_name: displayName } 
+      }));
 
       toast.success("Profile updated successfully!");
     } catch (error: any) {

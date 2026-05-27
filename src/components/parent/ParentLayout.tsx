@@ -64,6 +64,25 @@ export function ParentLayout({ children }: ParentLayoutProps) {
         fetchParentProfile();
     }, [user]);
 
+    useEffect(() => {
+        const handleProfileUpdate = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            if (customEvent.detail) {
+                if (customEvent.detail.avatar_url !== undefined) {
+                    setAvatarUrl(customEvent.detail.avatar_url);
+                }
+                if (customEvent.detail.full_name !== undefined) {
+                    setDisplayName(customEvent.detail.full_name);
+                }
+            }
+        };
+
+        window.addEventListener("profile-updated", handleProfileUpdate);
+        return () => {
+            window.removeEventListener("profile-updated", handleProfileUpdate);
+        };
+    }, []);
+
     const handleCopyCode = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
