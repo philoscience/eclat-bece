@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+# Éclat — Learn. Compete. Win.
 
-## Project info
+Turn exam prep into a game. Practice questions, climb the leaderboard, and earn rewards.
 
-**URL**: https://lovable.dev/projects/8d90776b-af8a-4355-9352-7f8bb8626198
+## Tech Stack
 
-## How can I edit this code?
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui (Radix primitives)
+- **Backend**: Supabase (Auth, Database, Edge Functions, Storage)
+- **Hosting**: Vercel
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8d90776b-af8a-4355-9352-7f8bb8626198) and start prompting.
+- Node.js 18+
+- npm
 
-Changes made via Lovable will be committed automatically to this repo.
+### Local Development
 
-**Use your preferred IDE**
+```bash
+# Install dependencies
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Environment Variables
 
-**Use GitHub Codespaces**
+Create a `.env` file in the project root:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+VITE_SUPABASE_PROJECT_ID=your_project_id
+VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+VITE_SUPABASE_URL=https://your_project_id.supabase.co
+```
 
-## What technologies are used for this project?
+### Building for Production
 
-This project is built with:
+```bash
+npm run build
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Output is generated in the `dist/` directory.
 
-## How can I deploy this project?
+## Project Structure
 
-Simply open [Lovable](https://lovable.dev/projects/8d90776b-af8a-4355-9352-7f8bb8626198) and click on Share -> Publish.
+```
+├── public/              # Static assets
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── hooks/           # Custom React hooks
+│   ├── integrations/    # Supabase client config
+│   ├── lib/             # Utility functions
+│   ├── pages/           # Route pages
+│   └── types/           # TypeScript type definitions
+├── supabase/
+│   ├── functions/       # Supabase Edge Functions
+│   └── migrations/      # Database migrations
+├── vercel.json          # Vercel SPA rewrite config
+└── vite.config.ts       # Vite build config
+```
 
-## Can I connect a custom domain to my Lovable project?
+## Deployment
 
-Yes, you can!
+This project is deployed on Vercel. Push to the `main` branch to trigger an automatic deployment.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+For admin setup instructions, see [ADMIN_SETUP.md](./ADMIN_SETUP.md).
