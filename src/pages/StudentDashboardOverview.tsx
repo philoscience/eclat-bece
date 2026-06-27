@@ -27,6 +27,11 @@ export default function StudentDashboardOverview() {
   const [averageScore, setAverageScore] = useState(0);
   const [monthlyRank, setMonthlyRank] = useState<number | null>(null);
   const [studentCode, setStudentCode] = useState<string>("");
+  
+  // Real database counts for badges
+  const [availableQuestionsCount, setAvailableQuestionsCount] = useState(0);
+  const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
+  const [completedQuizzesCount, setCompletedQuizzesCount] = useState(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -56,8 +61,32 @@ export default function StudentDashboardOverview() {
       if (studentData) {
         if (studentData.class_year) {
           setClassYear(studentData.class_year);
+          
+          // Fetch total available questions in database for the student's class year
+          const tableName = studentData.class_year === 'year_6'
+            ? 'quiz_questions_year6'
+            : 'quiz_questions_year9';
+            
+          const { count: questionsCount } = await supabase
+            .from(tableName as any)
+            .select("*", { count: 'exact', head: true });
+            
+          if (questionsCount !== null) {
+            setAvailableQuestionsCount(questionsCount);
+          }
         }
         setStudentId(studentData.id);
+        
+        // Fetch actual pending assignments count
+        const { count: pendingCount } = await supabase
+          .from("practice_assignments")
+          .select("*", { count: 'exact', head: true })
+          .eq("student_id", studentData.id)
+          .eq("status", "pending");
+          
+        if (pendingCount !== null) {
+          setPendingAssignmentsCount(pendingCount);
+        }
         
         // Fetch recent quiz results
         const { data: quizResults } = await supabase
@@ -77,12 +106,15 @@ export default function StudentDashboardOverview() {
           .select("total_questions, score")
           .eq("student_id", studentData.id);
         
-        if (allResults && allResults.length > 0) {
-          const total = allResults.reduce((sum, result) => sum + result.total_questions, 0);
-          setTotalQuestions(total);
-          
-          const avgScore = allResults.reduce((sum, result) => sum + result.score, 0) / allResults.length;
-          setAverageScore(Math.round(avgScore));
+        if (allResults) {
+          setCompletedQuizzesCount(allResults.length);
+          if (allResults.length > 0) {
+            const total = allResults.reduce((sum, result) => sum + result.total_questions, 0);
+            setTotalQuestions(total);
+            
+            const avgScore = allResults.reduce((sum, result) => sum + result.score, 0) / allResults.length;
+            setAverageScore(Math.round(avgScore));
+          }
         }
 
         // Calculate monthly rank (by total points, matching the National Leaderboard)
@@ -152,7 +184,9 @@ export default function StudentDashboardOverview() {
       color: "text-primary",
       bgColor: "bg-primary/10",
       url: "/dashboard/student/practice",
-      badge: "4 Subjects",
+      badge: availableQuestionsCount > 0 
+        ? `${availableQuestionsCount.toLocaleString()} Questions`
+        : "Start Now",
     },
     {
       title: "View Assignments",
@@ -161,7 +195,7 @@ export default function StudentDashboardOverview() {
       color: "text-accent",
       bgColor: "bg-accent/10",
       url: "/dashboard/student/assignments",
-      badge: "3 Pending",
+      badge: `${pendingAssignmentsCount} Pending`,
     },
     {
       title: "Check Progress",
@@ -170,7 +204,7 @@ export default function StudentDashboardOverview() {
       color: "text-green-600",
       bgColor: "bg-green-500/10",
       url: "/dashboard/student/progress",
-      badge: "+12% This Week",
+      badge: `${completedQuizzesCount} ${completedQuizzesCount === 1 ? 'Quiz' : 'Quizzes'}`,
     },
     {
       title: "See Rankings",
@@ -179,7 +213,7 @@ export default function StudentDashboardOverview() {
       color: "text-yellow-600",
       bgColor: "bg-yellow-500/10",
       url: "/dashboard/student/leaderboard",
-      badge: "Rank #12",
+      badge: monthlyRank ? `Rank #${monthlyRank}` : "Not Ranked",
     },
   ];
 
