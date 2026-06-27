@@ -141,16 +141,7 @@ export const CompetitionLeaderboards = ({
 
   return (
     <Card className="border-2 border-border/50 bg-background/50 backdrop-blur-sm shadow-sm rounded-[2rem] overflow-hidden">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-2xl font-black tracking-tight text-foreground">
-          <Trophy className="text-accent" size={24} />
-          National Leaderboards
-        </CardTitle>
-        <CardDescription>
-          Compete with students across Nigeria and win real prizes
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Tabs defaultValue="monthly" className="w-full flex flex-col">
           <TabsList className="flex w-fit mx-auto gap-2 rounded-full p-1.5 bg-muted/40 border border-border/40 backdrop-blur-sm mb-8">
             <TabsTrigger 
