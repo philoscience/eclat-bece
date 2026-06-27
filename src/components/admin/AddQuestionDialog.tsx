@@ -52,7 +52,7 @@ const formSchema = z.object({
     explanation: z.string().optional(),
     difficulty: z.enum(["easy", "medium", "hard"]),
     options: z.array(z.object({
-        text: z.string().min(1, "Option text is required"),
+        text: z.string().optional(),
         isCorrect: z.boolean(),
     })).min(2, "At least 2 options are required").refine(
         (options) => options.filter(o => o.isCorrect).length === 1,
@@ -213,6 +213,18 @@ export function AddQuestionDialog({ onSuccess }: AddQuestionDialogProps) {
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         if (!user) return;
+
+        // Custom validation: Option text is required unless an option image is provided
+        for (let i = 0; i < values.options.length; i++) {
+            const opt = values.options[i];
+            const hasText = opt.text && opt.text.trim().length > 0;
+            const hasImage = optionImageFiles[i] !== null;
+            if (!hasText && !hasImage) {
+                toast.error(`Option ${i + 1} must have either text or an image.`);
+                return;
+            }
+        }
+
         setLoading(true);
 
         try {
@@ -247,7 +259,7 @@ export function AddQuestionDialog({ onSuccess }: AddQuestionDialogProps) {
                     subject: values.subject,
                     topic: values.topic,
                     question_text: values.questionText,
-                    correct_answer: values.options.find(o => o.isCorrect)?.text,
+                    correct_answer: values.options.find(o => o.isCorrect)?.text || "",
                     explanation: values.explanation,
                     difficulty: values.difficulty,
                     passage_id: values.questionType === "comprehension" ? finalPassageId : null,
@@ -260,7 +272,7 @@ export function AddQuestionDialog({ onSuccess }: AddQuestionDialogProps) {
             // 2. Insert Options
             const optionsToInsert = values.options.map((opt, index) => ({
                 question_id: questionData.id,
-                option_text: opt.text,
+                option_text: opt.text || "",
                 is_correct: opt.isCorrect,
                 display_order: index,
             }));

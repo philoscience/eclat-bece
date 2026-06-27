@@ -51,7 +51,7 @@ const formSchema = z.object({
     explanation: z.string().optional(),
     difficulty: z.enum(["easy", "medium", "hard"]),
     options: z.array(z.object({
-        text: z.string().min(1, "Option text is required"),
+        text: z.string().optional(),
         isCorrect: z.boolean(),
     })).min(2, "At least 2 options are required").refine(
         (options) => options.filter(o => o.isCorrect).length === 1,
@@ -336,6 +336,19 @@ export function EditQuestionDialog({ open, onOpenChange, questionId, classYear, 
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         if (!user) return;
+
+        // Custom validation: Option text is required unless an option image is provided/already exists
+        for (let i = 0; i < values.options.length; i++) {
+            const opt = values.options[i];
+            const hasText = opt.text && opt.text.trim().length > 0;
+            const hasNewImage = optionImageFiles[i] !== null;
+            const hasExistingImage = existingOptionImageUrls[i] !== null && !optionImageRemoved[i];
+            if (!hasText && !hasNewImage && !hasExistingImage) {
+                toast.error(`Option ${i + 1} must have either text or an image.`);
+                return;
+            }
+        }
+
         setLoading(true);
 
         try {
@@ -370,7 +383,7 @@ export function EditQuestionDialog({ open, onOpenChange, questionId, classYear, 
                     subject: values.subject,
                     topic: values.topic,
                     question_text: values.questionText,
-                    correct_answer: values.options.find(o => o.isCorrect)?.text,
+                    correct_answer: values.options.find(o => o.isCorrect)?.text || "",
                     explanation: values.explanation,
                     difficulty: values.difficulty,
                     passage_id: values.questionType === "comprehension" ? finalPassageId : null,
@@ -390,7 +403,7 @@ export function EditQuestionDialog({ open, onOpenChange, questionId, classYear, 
             // 3. Insert new options
             const optionsToInsert = values.options.map((opt, index) => ({
                 question_id: questionId,
-                option_text: opt.text,
+                option_text: opt.text || "",
                 is_correct: opt.isCorrect,
                 display_order: index,
             }));
