@@ -22,7 +22,8 @@ import {
     Loader2,
     Trash2,
     Edit,
-    Filter
+    Filter,
+    Image as ImageIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -56,6 +57,7 @@ interface Question {
     question_text: string;
     difficulty: string;
     created_at: string;
+    image_url?: string | null;
 }
 
 const ITEMS_PER_PAGE = 50;
@@ -99,7 +101,7 @@ export default function QuestionBankPage() {
 
             let query = supabase
                 .from(tableName as any)
-                .select("id, subject, topic, question_text, difficulty, created_at", { count: 'exact' })
+                .select("id, subject, topic, question_text, difficulty, created_at, image_url", { count: 'exact' })
                 .order("created_at", { ascending: false })
                 .range(from, to);
 
@@ -138,9 +140,46 @@ export default function QuestionBankPage() {
             // Get question details before deletion for logging
             const { data: questionData } = await supabase
                 .from(tableName as any)
-                .select('question_text, subject, topic, difficulty')
+                .select('question_text, subject, topic, difficulty, image_url')
                 .eq('id', deleteId)
                 .single();
+
+            // Find any option images to delete
+            const optionsTableName = classYear === 'year_6' ? 'quiz_options_year6' : 'quiz_options_year9';
+            const { data: optionsData } = await supabase
+                .from(optionsTableName as any)
+                .select('image_url')
+                .eq('question_id', deleteId);
+
+            // Collect all image URLs to delete from storage
+            const urlsToDelete: string[] = [];
+            if (questionData?.image_url) {
+                urlsToDelete.push(questionData.image_url);
+            }
+            if (optionsData) {
+                optionsData.forEach((opt: any) => {
+                    if (opt.image_url) {
+                        urlsToDelete.push(opt.image_url);
+                    }
+                });
+            }
+
+            // Delete from storage if any paths exist
+            if (urlsToDelete.length > 0) {
+                const paths = urlsToDelete.map(url => {
+                    const parts = url.split('/storage/v1/object/public/question-images/');
+                    return parts.length > 1 ? parts[1] : null;
+                }).filter(Boolean) as string[];
+
+                if (paths.length > 0) {
+                    const { error: storageError } = await supabase.storage
+                        .from('question-images')
+                        .remove(paths);
+                    if (storageError) {
+                        console.error("Error deleting question/option images from storage:", storageError);
+                    }
+                }
+            }
 
             const { error } = await supabase
                 .from(tableName as any)
@@ -273,8 +312,13 @@ export default function QuestionBankPage() {
                             questions.map((question) => (
                                 <TableRow key={question.id}>
                                     <TableCell>
-                                        <div className="line-clamp-2" title={question.question_text}>
-                                            {question.question_text}
+                                        <div className="flex items-center gap-2">
+                                            {question.image_url && (
+                                                <ImageIcon className="h-4 w-4 text-primary shrink-0" title="Has image attachment" />
+                                            )}
+                                            <div className="line-clamp-2" title={question.question_text}>
+                                                {question.question_text}
+                                            </div>
                                         </div>
                                     </TableCell>
                                     <TableCell>

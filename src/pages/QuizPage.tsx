@@ -9,13 +9,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
+interface QuizOption {
+  text: string;
+  image_url?: string | null;
+}
+
 interface Question {
   id: string;
   question: string;
-  options: string[];
+  options: QuizOption[];
   correctAnswer: number;
   explanation: string;
   subject: string;
+  image_url?: string | null;
   passage?: {
     title: string | null;
     passage_text: string;
@@ -40,6 +46,7 @@ export default function QuizPage() {
   const [quizComplete, setQuizComplete] = useState(false);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [quizSubject, setQuizSubject] = useState(subject || "Mixed Topics");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -150,11 +157,15 @@ export default function QuizPage() {
             return {
               id: q.id,
               question: q.question_text,
-              options: optionsData?.map((opt: any) => opt.option_text) || [],
+              options: optionsData?.map((opt: any) => ({
+                text: opt.option_text,
+                image_url: opt.image_url || null
+              })) || [],
               correctAnswer: correctOptionIndex,
               explanation: q.explanation || "No explanation available.",
               subject: q.subject,
               passage: q.passage || null,
+              image_url: q.image_url || null,
             };
           })
         );
@@ -406,6 +417,21 @@ export default function QuizPage() {
 
           <h2 className="text-2xl font-bold mb-6">{question.question}</h2>
 
+          {/* Question Image (Optional) */}
+          {question.image_url && (
+            <div 
+              className="mb-6 max-w-lg mx-auto rounded-2xl border bg-muted/10 overflow-hidden shadow-sm cursor-zoom-in hover:shadow-md transition-shadow"
+              onClick={() => setLightboxImage(question.image_url || null)}
+            >
+              <img 
+                src={question.image_url} 
+                alt="Question diagram" 
+                className="w-full max-h-[300px] object-contain mx-auto"
+                loading="lazy"
+              />
+            </div>
+          )}
+
           <div className="space-y-3 mb-6">
             {question.options.map((option, index) => {
               const isSelected = selectedAnswer === index;
@@ -427,10 +453,22 @@ export default function QuizPage() {
                         : 'border-border hover:border-primary/50 hover:bg-muted/50'
                     } ${showFeedback ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{option}</span>
-                    {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-600" />}
-                    {showIncorrect && <XCircle className="w-5 h-5 text-red-600" />}
+                  <div className="flex flex-col gap-3">
+                    {option.image_url && (
+                      <div className="max-h-24 sm:max-h-32 w-auto overflow-hidden rounded-md border bg-muted/10 self-start">
+                        <img 
+                          src={option.image_url} 
+                          alt={`Option ${index + 1}`} 
+                          className="max-h-24 sm:max-h-32 object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium">{option.text}</span>
+                      {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" />}
+                      {showIncorrect && <XCircle className="w-5 h-5 text-red-600 shrink-0" />}
+                    </div>
                   </div>
                 </button>
               );
@@ -487,6 +525,20 @@ export default function QuizPage() {
           </div>
         </Card>
       </div>
+
+      {/* Lightbox Overlay */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-md z-50 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setLightboxImage(null)}
+        >
+          <img 
+            src={lightboxImage} 
+            alt="Enlarged diagram" 
+            className="max-w-full max-h-[90vh] rounded-xl object-contain shadow-2xl border"
+          />
+        </div>
+      )}
     </div>
   );
 }

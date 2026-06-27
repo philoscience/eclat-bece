@@ -459,6 +459,7 @@ export type Database = {
           created_at: string | null
           display_order: number | null
           id: string
+          image_url: string | null
           is_correct: boolean | null
           option_text: string
           question_id: string
@@ -467,6 +468,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_correct?: boolean | null
           option_text: string
           question_id: string
@@ -475,6 +477,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_correct?: boolean | null
           option_text?: string
           question_id?: string
@@ -494,6 +497,7 @@ export type Database = {
           created_at: string | null
           display_order: number | null
           id: string
+          image_url: string | null
           is_correct: boolean | null
           option_text: string
           question_id: string
@@ -502,6 +506,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_correct?: boolean | null
           option_text: string
           question_id: string
@@ -510,6 +515,7 @@ export type Database = {
           created_at?: string | null
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_correct?: boolean | null
           option_text?: string
           question_id?: string
@@ -531,6 +537,7 @@ export type Database = {
           difficulty: string | null
           explanation: string | null
           id: string
+          image_url: string | null
           passage_id: string | null
           question_text: string
           subject: string
@@ -543,6 +550,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
           passage_id?: string | null
           question_text: string
           subject: string
@@ -555,6 +563,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
           passage_id?: string | null
           question_text?: string
           subject?: string
@@ -578,6 +587,7 @@ export type Database = {
           difficulty: string | null
           explanation: string | null
           id: string
+          image_url: string | null
           passage_id: string | null
           question_text: string
           subject: string
@@ -590,6 +600,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
           passage_id?: string | null
           question_text: string
           subject: string
@@ -602,6 +613,7 @@ export type Database = {
           difficulty?: string | null
           explanation?: string | null
           id?: string
+          image_url?: string | null
           passage_id?: string | null
           question_text?: string
           subject?: string
