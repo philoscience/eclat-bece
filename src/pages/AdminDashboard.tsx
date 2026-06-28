@@ -118,13 +118,17 @@ export default function AdminDashboard() {
                 .from("quiz_results")
                 .select("*", { count: "exact", head: true });
 
-            // Count active students today
+            // Count active students today (unique students who completed at least 1 quiz today)
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const { count: activeToday } = await supabase
+            const { data: activeTodayData } = await supabase
                 .from("quiz_results")
-                .select("student_id", { count: "exact", head: true })
+                .select("student_id")
                 .gte("completed_at", today.toISOString());
+
+            const activeTodayCount = activeTodayData
+                ? new Set(activeTodayData.map(r => r.student_id)).size
+                : 0;
 
             setStats({
                 totalStudents: studentCount || 0,
@@ -132,7 +136,7 @@ export default function AdminDashboard() {
                 totalSchools: schoolCount || 0,
                 totalQuestions: (year6Questions || 0) + (year9Questions || 0),
                 totalQuizzesTaken: quizzesTaken || 0,
-                activeStudentsToday: activeToday || 0,
+                activeStudentsToday: activeTodayCount,
             });
 
             // Count pending flagged questions
