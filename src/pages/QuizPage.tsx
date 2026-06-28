@@ -476,13 +476,13 @@ export default function QuizPage() {
                   size="sm"
                   onClick={() => setFlagDialogOpen(true)}
                   disabled={flaggedQuestionIds.includes(question.id)}
-                  className={`h-7 px-2 text-xs flex items-center gap-1 ${
+                  className={`h-7 px-2.5 text-xs flex items-center gap-1.5 font-semibold transition-all border rounded-full ${
                     flaggedQuestionIds.includes(question.id)
-                      ? "text-green-600 bg-green-50 dark:bg-green-950/20 hover:bg-green-50 dark:hover:bg-green-950/20"
-                      : "text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                      ? "text-green-600 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/30"
+                      : "text-red-600 bg-red-50 hover:bg-red-100 border-red-200 dark:text-red-400 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:border-red-900/30"
                   }`}
                 >
-                  <Flag className="h-3 w-3" />
+                  <Flag className={`h-3 w-3 ${flaggedQuestionIds.includes(question.id) ? "" : "fill-current"}`} />
                   {flaggedQuestionIds.includes(question.id) ? "Flagged" : "Flag"}
                 </Button>
               )}
