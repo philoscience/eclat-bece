@@ -1,4 +1,5 @@
-import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { LinkedinIcon, Mail, Phone, } from "lucide-react";
+import { LinkedInIcon } from "@/components/icons/LinkedInIcon";
 import logo from "@/assets/logo.png";
 
 export const Footer = () => {
@@ -69,16 +70,7 @@ export const Footer = () => {
           
           <div className="flex items-center gap-6">
             <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Facebook size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Instagram size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Linkedin size={20} />
+              <LinkedInIcon size={20} />
             </a>
           </div>
 
