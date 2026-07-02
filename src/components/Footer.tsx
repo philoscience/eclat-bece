@@ -1,4 +1,4 @@
-import { LinkedinIcon, Mail, Phone, } from "lucide-react";
+import {  Mail, Phone, } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons/LinkedInIcon";
 import logo from "@/assets/logo.png";
 
@@ -69,9 +69,7 @@ export const Footer = () => {
           </p>
           
           <div className="flex items-center gap-6">
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <LinkedInIcon size={20} />
-            </a>
+            <LinkedInIcon size={20} />
           </div>
 
           <div className="flex items-center gap-4 text-sm">
