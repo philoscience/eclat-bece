@@ -1,11 +1,12 @@
 interface LinkedInIconProps {
   size?: number;
   href?: string;
+  className?: string;
 }
 
-export function LinkedInIcon({ size = 24, href = "https://www.linkedin.com/company/eclat-technologies/" }: LinkedInIconProps) {
+export function LinkedInIcon({ size = 24, href = "https://www.linkedin.com/company/eclat-technologies/", className = "" }: LinkedInIconProps) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" aria-label="Visit LinkedIn">
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label="Visit LinkedIn" className={className}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width={size}
