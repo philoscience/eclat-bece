@@ -7,12 +7,10 @@ import { Leaderboard } from "@/components/Leaderboard";
 import { About } from "@/components/About";
 import { Pricing } from "@/components/Pricing";
 import { Footer } from "@/components/Footer";
-import { RoleSelectionDialog } from "@/components/RoleSelectionDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
 
@@ -68,8 +66,12 @@ const Index = () => {
     }
   };
 
-  const handleAuthAction = () => {
-    navigate("/role-selection");
+  const handleLoginAction = () => {
+    navigate("/login/role-selection");
+  };
+
+    const handleSignUpAction = () => {
+    navigate("/signup/role-selection");
   };
 
   const scrollToLeaderboard = () => {
@@ -89,12 +91,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onLoginClick={handleAuthAction} onGetStartedClick={handleAuthAction} />
-      <Hero onGetStartedClick={handleAuthAction} onViewLeaderboardClick={scrollToLeaderboard} />
+      <Navigation onLoginClick={handleLoginAction} onGetStartedClick={handleSignUpAction} />
+      <Hero onGetStartedClick={handleSignUpAction} onViewLeaderboardClick={scrollToLeaderboard} />
       <Features />
       <Leaderboard onViewFullLeaderboard={scrollToLeaderboard} />
       <About />
-      <Pricing onGetStartedClick={handleAuthAction} />
+      <Pricing onGetStartedClick={handleSignUpAction} />
       <Footer />
     </div>
   );

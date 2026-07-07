@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users, School } from "lucide-react";
+import { navigateToRolePage } from "./RoleController";
 
-export default function RoleSelectionPage() {
+export default function LoginRoleSelectionPage() {
   const navigate = useNavigate();
 
   const roles = [
@@ -37,7 +38,7 @@ export default function RoleSelectionPage() {
             <BookOpen className="text-primary" size={40} />
             <h1 className="text-4xl font-bold text-foreground">Éclat</h1>
           </div>
-          <p className="text-xl text-muted-foreground">Select your role to continue</p>
+          <p className="text-xl text-muted-foreground">Select your role to login</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -48,7 +49,7 @@ export default function RoleSelectionPage() {
                 key={role.id}
                 className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 animate-scale-in group"
                 style={{ animationDelay: `${index * 100}ms` }}
-                onClick={() => navigate(`/auth?role=${role.id}`)}
+                onClick={() => navigateToRolePage(role.id, navigate)}
               >
                 <CardHeader className="text-center">
                   <div className={`mx-auto mb-4 p-4 rounded-full bg-gradient-to-br ${role.color} w-fit group-hover:scale-110 transition-transform`}>
