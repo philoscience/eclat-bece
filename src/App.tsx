@@ -8,7 +8,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import RoleSelectionPage from "./pages/RoleSelectionPage";
+import LoginRoleSelectionPage from "./pages/auth/LoginRoleSelectionPage";
+import SignUpRoleSelectionPage from "./pages/auth/SignUpRoleSelectionPage";
 import AuthPage from "./pages/AuthPage";
 import AuthCallback from "./pages/AuthCallback";
 import PasswordResetPage from "./pages/PasswordResetPage";
@@ -63,7 +64,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/role-selection" element={<RoleSelectionPage />} />
+              <Route path="/auth/login/role-selection" element={<LoginRoleSelectionPage />} />
+              <Route path="/auth/signup/role-selection" element={<SignUpRoleSelectionPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/password-reset" element={<PasswordResetPage />} />

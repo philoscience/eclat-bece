@@ -1,3 +1,6 @@
+// LinkedInIcon.tsx
+// LinkedInIcon component 
+// contains the LinkedIn icon configuration
 interface LinkedInIconProps {
   size?: number;
   href?: string;

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, GraduationCap, Users, School } from "lucide-react";
 
-export default function RoleSelectionPage() {
+export default function LoginRoleSelectionPage() {
   const navigate = useNavigate();
 
   const roles = [
@@ -37,7 +37,7 @@ export default function RoleSelectionPage() {
             <BookOpen className="text-primary" size={40} />
             <h1 className="text-4xl font-bold text-foreground">Éclat</h1>
           </div>
-          <p className="text-xl text-muted-foreground">Select your role to continue</p>
+          <p className="text-xl text-muted-foreground">Select your role to login</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
