@@ -1,4 +1,6 @@
-import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import {  Mail, Phone, } from "lucide-react";
+import { LinkedInIcon } from "@/components/icons/LinkedInIcon";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 export const Footer = () => {
@@ -68,28 +70,17 @@ export const Footer = () => {
           </p>
           
           <div className="flex items-center gap-6">
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Facebook size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Instagram size={20} />
-            </a>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
-              <Linkedin size={20} />
-            </a>
+            <LinkedInIcon size={20} className="text-background/80 hover:text-background transition-colors" />
           </div>
 
           <div className="flex items-center gap-4 text-sm">
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
+            <Link to="/privacy-policy" className="text-background/80 hover:text-background transition-colors">
               Privacy Policy
-            </a>
+            </Link>
             <span className="text-background/40">•</span>
-            <a href="#" className="text-background/80 hover:text-background transition-colors">
+            <Link to="/terms-of-service" className="text-background/80 hover:text-background transition-colors">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
       </div>
