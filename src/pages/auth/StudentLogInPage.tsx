@@ -191,10 +191,10 @@ export default function StudentLogInPage() {
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={() => navigate("/login/role-selection")}
+                onClick={() => navigate("/auth?role=student")}
                 disabled={isLoading}
               >
-                Back to Login Selection Page
+                Back to Full Auth Page
               </Button>
 
               <p className="text-sm text-center text-muted-foreground">
