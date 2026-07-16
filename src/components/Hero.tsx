@@ -28,13 +28,13 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-tight animate-slide-up">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight animate-slide-up" style={{ color: 'rgb(158, 137, 15)' }}>
              Ace BECE & Common Entrance. Compete Nationwide. Win Big.
           </h1>
 
           {/* Subheading */}
           <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            Eclat transforms exam preparation into an engaging competition — practice unlimited questions, climb national leaderboards, and win real prizes.
+            Eclat: The only exam prep that feels like a tournament. Unlimited practice. Live national rankings. Real prizes for top performers
           </p>
 
           {/* CTA Buttons */}
