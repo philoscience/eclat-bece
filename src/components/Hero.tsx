@@ -33,7 +33,7 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: "0.1s" }}>
+          <p className="text-xl sm:text-2xl max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ color: 'white', animationDelay: "0.1s" }}>
             Eclat: The only exam prep that feels like a tournament. Unlimited practice. Live national rankings. Real prizes for top performers
           </p>
 
