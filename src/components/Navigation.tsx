@@ -3,7 +3,9 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
+import logoLight from "@/assets/logo-light.png";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 
 interface NavigationProps {
   onLoginClick: () => void;
@@ -13,6 +15,7 @@ interface NavigationProps {
 export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -34,7 +37,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            <img src={logo} alt="Éclat Logo" className="h-10 sm:h-12 md:h-16 w-auto filter drop-shadow-lg" />
+            <img src={theme === 'dark' ? logoLight : logo} alt="Éclat Logo" className="h-10 sm:h-12 md:h-16 w-auto filter drop-shadow-lg" />
           </div>
 
           {/* Desktop Navigation */}
