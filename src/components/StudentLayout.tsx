@@ -19,6 +19,7 @@ import { AccountSettingsDialog } from "@/components/AccountSettingsDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "next-themes";
+import { getBadgeLevel, BadgeLevel } from "@/components/WinnerBadge";
 import logoDark from "@/assets/logo-dark.png";
 import logoLight from "@/assets/logo-light.png";
 
@@ -36,6 +37,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [totalWins, setTotalWins] = useState(0);
+  const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
   
   const logo = theme === "dark" ? logoLight : logoDark;
 
@@ -72,6 +75,18 @@ export function StudentLayout({ children }: StudentLayoutProps) {
 
       if (streakData) {
         setCurrentStreak(streakData.current_streak);
+      }
+
+      // Fetch quiz results to calculate wins
+      const { data: quizResults } = await supabase
+        .from("quiz_results")
+        .select("score")
+        .eq("student_id", studentData.id);
+
+      if (quizResults) {
+        const wins = quizResults.filter(result => result.score >= 80).length;
+        setTotalWins(wins);
+        setBadgeLevel(getBadgeLevel(wins));
       }
     };
 
@@ -135,7 +150,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="hover:scale-110 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full flex-shrink-0 p-0"
+                      className="hover:scale-110 transition-all duration-300 h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full flex-shrink-0 p-0 relative"
                     >
                       <Avatar className="h-full w-full">
                         <AvatarImage src={avatarUrl} alt={displayName} />
@@ -143,6 +158,16 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                           <UserIcon className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>
+                      {totalWins > 0 && (
+                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs border-2 ${
+                          badgeLevel === 'platinum' ? 'bg-cyan-100 dark:bg-cyan-900/30 border-cyan-300 dark:border-cyan-600' :
+                          badgeLevel === 'gold' ? 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-600' :
+                          badgeLevel === 'silver' ? 'bg-slate-100 dark:bg-slate-800/30 border-slate-300 dark:border-slate-600' :
+                          'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700'
+                        }`}>
+                          <span>{badgeLevel === 'platinum' ? '💎' : badgeLevel === 'gold' ? '🥇' : badgeLevel === 'silver' ? '🥈' : '🥉'}</span>
+                        </div>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">

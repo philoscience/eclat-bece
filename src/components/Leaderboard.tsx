@@ -96,7 +96,7 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-2xl font-bold ${student.color}`}>#{student.rank}</span>
-                        <h3 className="text-xl font-bold text-foreground truncate">{student.name}</h3>
+                        <h3 className={`text-xl text-foreground truncate ${student.rank <= 10 ? 'font-bold' : 'font-semibold'}`}>{student.name}</h3>
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{student.school}</p>
                     </div>
@@ -155,7 +155,7 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xl font-bold text-primary">#{student.rank}</span>
-                        <h4 className="text-lg font-semibold text-foreground truncate">{student.name}</h4>
+                        <h4 className={`text-lg text-foreground truncate ${student.rank <= 10 ? 'font-bold' : 'font-semibold'}`}>{student.name}</h4>
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{student.school}</p>
                     </div>

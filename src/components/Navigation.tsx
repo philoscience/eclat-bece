@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
 import { useNavigate } from "react-router-dom";
 
@@ -66,6 +67,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3 xl:gap-5">
+            <ThemeToggle />
             <Button 
               variant="outline" 
               onClick={onLoginClick} 
@@ -120,6 +122,10 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
               Contact
             </button>
             <div className="px-3 sm:px-4 pt-4 sm:pt-6 space-y-2 sm:space-y-3 border-t border-border/50 mt-2 sm:mt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
               <Button variant="outline" className="w-full font-semibold text-sm sm:text-[15px] h-10 sm:h-11" onClick={onLoginClick}>
                 Login
               </Button>

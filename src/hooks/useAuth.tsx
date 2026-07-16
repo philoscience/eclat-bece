@@ -6,17 +6,9 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    const pathname = window.location.pathname;
     await signOut();
-    if (pathname.includes("/parent")) {
-      navigate("/auth?role=parent");
-    } else if (pathname.includes("/school")) {
-      navigate("/auth?role=school");
-    } else if (pathname.includes("/admin")) {
-      navigate("/admin/login");
-    } else {
-      navigate("/auth?role=student");
-    }
+    // Use window.location.href to force a full page reload and clear any cached state
+    window.location.href = "/auth?role=student";
   };
 
   return { user, session, loading, signOut: handleSignOut };

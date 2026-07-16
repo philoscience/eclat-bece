@@ -340,34 +340,6 @@ export default function StudentProgressPage() {
             </CardContent>
           </Card>
 
-          {/* Badges */}
-          <Card className="border-2 border-border/50 bg-background/50 backdrop-blur-sm shadow-sm rounded-[2rem] overflow-hidden animate-scale-in" style={{ animationDelay: "0.2s" }}>
-            <CardHeader className="pb-3 border-b border-border/40">
-              <CardTitle className="text-lg font-black tracking-tight">Badges Earned</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-2 gap-3">
-                {badges.map((badge, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all duration-300 ${
-                      badge.earned 
-                        ? "bg-primary/5 border-primary/20 hover:scale-[1.03]" 
-                        : "bg-muted/30 border-border/30 opacity-40"
-                    }`}
-                  >
-                    <span className="text-2xl filter drop-shadow-sm">{badge.icon}</span>
-                    <div className="min-w-0">
-                      <span className="text-xs font-black text-foreground block truncate leading-tight">{badge.name}</span>
-                      <span className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/80">
-                        {badge.earned ? "Unlocked" : "Locked"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

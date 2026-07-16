@@ -306,7 +306,7 @@ export default function ParentDashboard() {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-1.5 bg-primary rounded-full" />
-                <h3 className="text-2xl font-black text-foreground tracking-tight uppercase">Activity Feed</h3>
+                <h3 className="text-2xl font-black text-foreground tracking-tight uppercase">Recent Activities</h3>
               </div>
               <Button
                 variant="ghost"

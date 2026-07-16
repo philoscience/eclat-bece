@@ -324,7 +324,7 @@ export default function StudentDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Total Questions</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Practice Questions</p>
                   <p className="text-2xl sm:text-3xl font-bold text-primary">847</p>
                 </div>
                 <Target className="text-primary" size={24} />
