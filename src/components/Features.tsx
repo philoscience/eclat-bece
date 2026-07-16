@@ -5,22 +5,15 @@ export const Features = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Comprehensive Exam Practice",
+      title: "Empower Parents to Create Personalized Practice",
       description: "Create custom Mathematics, English, Basic Science, and Social Studies quizzes tailored to your child's learning needs. Set questions, choose difficulty levels, and track progress from one place.",
       color: "text-primary",
       bgColor: "bg-primary-light",
     },
     {
-      icon: Trophy,
-      title: "National Competition",
-      description: "Compete with students across Nigeria. Top performers win airtime, vouchers, and cash prizes weekly, monthly and annually!",
-      color: "text-accent",
-      bgColor: "bg-accent-light",
-    },
-    {
       icon: BarChart3,
       title: "Detailed Performance Analytics",
-      description: "Track your progress with in-depth analytics. Parents and teachers can monitor performance in real-time.",
+      description: "Track your ward's progress with in-depth analytics. Parents can monitor performance in real-time.",
       color: "text-primary-glow",
       bgColor: "bg-primary-light",
     },
@@ -40,7 +33,7 @@ export const Features = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
