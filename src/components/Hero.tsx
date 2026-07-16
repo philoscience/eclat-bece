@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroStudy from "@/assets/logo-child.jpeg";
+import heroStudy from "@/assets/logo-child1.jpeg";
 
 interface HeroProps {
   onGetStartedClick: () => void;
