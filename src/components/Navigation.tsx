@@ -51,12 +51,6 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
               Features
             </button>
             <button
-              onClick={() => scrollToSection("leaderboard")}
-              className="relative text-foreground/85 hover:text-primary transition-all duration-300 font-bold text-sm xl:text-base tracking-tight hover:scale-110 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-primary after:to-accent after:transition-all after:duration-300 hover:after:w-full pb-1"
-            >
-              Leaderboard
-            </button>
-            <button
               onClick={() => scrollToSection("pricing")}
               className="relative text-foreground/85 hover:text-primary transition-all duration-300 font-bold text-sm xl:text-base tracking-tight hover:scale-110 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-primary after:to-accent after:transition-all after:duration-300 hover:after:w-full pb-1"
             >
@@ -112,12 +106,6 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
               className="block w-full text-left px-4 sm:px-5 py-3 sm:py-3.5 text-foreground/90 hover:text-primary hover:bg-accent/50 rounded-lg transition-all duration-200 font-semibold text-sm sm:text-[15px]"
             >
               Features
-            </button>
-            <button
-              onClick={() => scrollToSection("leaderboard")}
-              className="block w-full text-left px-4 sm:px-5 py-3 sm:py-3.5 text-foreground/90 hover:text-primary hover:bg-accent/50 rounded-lg transition-all duration-200 font-semibold text-sm sm:text-[15px]"
-            >
-              Leaderboard
             </button>
             <button
               onClick={() => scrollToSection("pricing")}

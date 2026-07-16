@@ -1,13 +1,12 @@
-import { Trophy, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroStudy from "@/assets/hero-study.jpg";
 
 interface HeroProps {
   onGetStartedClick: () => void;
-  onViewLeaderboardClick: () => void;
 }
 
-export const Hero = ({ onGetStartedClick, onViewLeaderboardClick }: HeroProps) => {
+export const Hero = ({ onGetStartedClick }: HeroProps) => {
   return (
     <section id="hero" className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background Image with Overlay */}
@@ -42,10 +41,6 @@ export const Hero = ({ onGetStartedClick, onViewLeaderboardClick }: HeroProps) =
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <Button variant="hero" size="lg" onClick={onGetStartedClick} className="w-full sm:w-auto">
               Get Started Free
-            </Button>
-            <Button variant="outline" size="lg" onClick={onViewLeaderboardClick} className="w-full sm:w-auto">
-              <Trophy className="mr-2" size={20} />
-              View Leaderboard
             </Button>
           </div>
 

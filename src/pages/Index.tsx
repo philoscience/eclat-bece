@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
-import { Leaderboard } from "@/components/Leaderboard";
 import { About } from "@/components/About";
 import { Pricing } from "@/components/Pricing";
 import { Footer } from "@/components/Footer";
@@ -74,13 +73,6 @@ const Index = () => {
     navigate("/signup/role-selection");
   };
 
-  const scrollToLeaderboard = () => {
-    const element = document.getElementById("leaderboard");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   if (isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -92,9 +84,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation onLoginClick={handleLoginAction} onGetStartedClick={handleSignUpAction} />
-      <Hero onGetStartedClick={handleSignUpAction} onViewLeaderboardClick={scrollToLeaderboard} />
+      <Hero onGetStartedClick={handleSignUpAction} />
       <Features />
-      <Leaderboard onViewFullLeaderboard={scrollToLeaderboard} />
       <About />
       <Pricing onGetStartedClick={handleSignUpAction} />
       <Footer />

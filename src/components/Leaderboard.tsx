@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Medal, Crown, Trophy } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Medal, Crown, Trophy, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { fetchLeaderboardData, LeaderboardStudent } from "@/utils/leaderboard";
 
 interface LeaderboardProps {
   onViewFullLeaderboard: () => void;
@@ -15,57 +16,32 @@ interface LeaderboardProps {
 
 export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [monthlyLeaders, setMonthlyLeaders] = useState<LeaderboardStudent[]>([]);
 
-  const topStudents = [
-    {
-      rank: 1,
-      name: "Chidinma Okafor",
-      school: "Corona Secondary School, Lagos",
-      points: 9850,
-      avatar: "🎓",
-      badge: Crown,
-      color: "text-accent",
-      bgColor: "bg-accent-light",
-    },
-    {
-      rank: 2,
-      name: "Ibrahim Musa",
-      school: "Government College, Abuja",
-      points: 9620,
-      avatar: "📚",
-      badge: Medal,
-      color: "text-muted-foreground",
-      bgColor: "bg-muted",
-    },
-    {
-      rank: 3,
-      name: "Blessing Adeyemi",
-      school: "International School, Ibadan",
-      points: 9340,
-      avatar: "🌟",
-      badge: Medal,
-      color: "text-primary",
-      bgColor: "bg-primary-light",
-    },
-  ];
+  useEffect(() => {
+    const loadLeaderboard = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchLeaderboardData();
+        setMonthlyLeaders(data.monthlyLeaders);
+      } catch (error) {
+        console.error("Failed to load leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadLeaderboard();
+  }, []);
 
-  const allStudents = [
-    { rank: 1, name: "Chidinma Okafor", school: "Corona Secondary School, Lagos", points: 9850, avatar: "🎓" },
-    { rank: 2, name: "Ibrahim Musa", school: "Government College, Abuja", points: 9620, avatar: "📚" },
-    { rank: 3, name: "Blessing Adeyemi", school: "International School, Ibadan", points: 9340, avatar: "🌟" },
-    { rank: 4, name: "Emeka Nwankwo", school: "Enugu State Academy", points: 9180, avatar: "💫" },
-    { rank: 5, name: "Fatima Bello", school: "Capital Science Academy, Kano", points: 8950, avatar: "🎯" },
-    { rank: 6, name: "Oluwaseun Ajayi", school: "Lagos Preparatory School", points: 8720, avatar: "⭐" },
-    { rank: 7, name: "Amina Yusuf", school: "Government Secondary, Kaduna", points: 8540, avatar: "🏆" },
-    { rank: 8, name: "Chukwuemeka Eze", school: "Port Harcourt International", points: 8320, avatar: "✨" },
-    { rank: 9, name: "Aisha Mohammed", school: "Federal Capital College, Abuja", points: 8150, avatar: "🌟" },
-    { rank: 10, name: "Tunde Williams", school: "Gateway Academy, Ibadan", points: 7980, avatar: "💎" },
-    { rank: 11, name: "Grace Okoro", school: "Owerri Model School", points: 7820, avatar: "🎓" },
-    { rank: 12, name: "Yusuf Abdullahi", school: "Sokoto State College", points: 7650, avatar: "📖" },
-    { rank: 13, name: "Chiamaka Nnamdi", school: "Anambra Excellence Academy", points: 7490, avatar: "🔥" },
-    { rank: 14, name: "Mohammed Sani", school: "Bauchi International School", points: 7330, avatar: "🚀" },
-    { rank: 15, name: "Ngozi Adeola", school: "Osun State Secondary", points: 7180, avatar: "💪" },
-  ];
+  const topStudents = monthlyLeaders.slice(0, 3).map((student, index) => ({
+    ...student,
+    badge: index === 0 ? Crown : Medal,
+    color: index === 0 ? "text-accent" : index === 1 ? "text-muted-foreground" : "text-primary",
+    bgColor: index === 0 ? "bg-accent-light" : index === 1 ? "bg-muted" : "bg-primary-light",
+  }));
+
+  const allStudents = monthlyLeaders;
 
   return (
     <section id="leaderboard" className="py-20 px-4 sm:px-6 lg:px-8 bg-primary-light/30">
@@ -85,8 +61,18 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
         </div>
 
         {/* Leaderboard Cards */}
-        <div className="max-w-4xl mx-auto space-y-4 mb-8">
-          {topStudents.map((student, index) => {
+        {loading ? (
+          <div className="max-w-4xl mx-auto flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="max-w-4xl mx-auto space-y-4 mb-8">
+            {topStudents.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No leaderboard data available yet. Start practicing to see your name here!
+              </div>
+            ) : (
+              topStudents.map((student, index) => {
             const Badge = student.badge;
             return (
               <Card
@@ -124,8 +110,10 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
                 </CardContent>
               </Card>
             );
-          })}
-        </div>
+              })
+            )}
+          </div>
+        )}
 
         {/* View Full Leaderboard Button */}
         <div className="text-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
@@ -145,7 +133,16 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-2 mt-4">
-            {allStudents.map((student, index) => (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : allStudents.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+          
+              </div>
+            ) : (
+              allStudents.map((student, index) => (
               <Card
                 key={index}
                 className={`border ${student.rank <= 3 ? "border-accent" : "border-border"}`}
@@ -169,7 +166,8 @@ export const Leaderboard = ({ onViewFullLeaderboard }: LeaderboardProps) => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
           </div>
         </DialogContent>
       </Dialog>
