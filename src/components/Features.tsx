@@ -57,36 +57,6 @@ export const Features = () => {
             );
           })}
         </div>
-
-        {/* Additional Benefits */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <div className="bg-gradient-to-br from-primary-light/50 to-accent-light/30 rounded-2xl p-8 border-2 border-primary/20">
-            <h3 className="text-2xl font-bold text-center mb-8">Built for Success</h3>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mb-3">
-                  <Target className="text-primary" size={24} />
-                </div>
-                <h4 className="font-semibold mb-2">Adaptive Learning</h4>
-                <p className="text-sm text-muted-foreground">Questions adapt to your skill level</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mb-3">
-                  <Zap className="text-accent" size={24} />
-                </div>
-                <h4 className="font-semibold mb-2">Instant Feedback</h4>
-                <p className="text-sm text-muted-foreground">Learn from every answer immediately</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center mb-3">
-                  <CheckCircle2 className="text-primary" size={24} />
-                </div>
-                <h4 className="font-semibold mb-2">Proven Results</h4>
-                <p className="text-sm text-muted-foreground">Significant score improvements</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
