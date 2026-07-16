@@ -6,7 +6,7 @@ export const Features = () => {
     {
       icon: BookOpen,
       title: "Comprehensive Exam Practice",
-      description: "Master Mathematics, English, Basic Science, and Social Studies with thousands of authentic BECE and Common Entrance questions organized by subject and difficulty.",
+      description: "Create custom Mathematics, English, Basic Science, and Social Studies quizzes tailored to your child's learning needs. Set questions, choose difficulty levels, and track progress from one place.",
       color: "text-primary",
       bgColor: "bg-primary-light",
     },
