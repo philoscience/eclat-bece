@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroStudy from "@/assets/hero-study.jpg";
+import heroStudy from "@/assets/logo-child.jpeg";
 
 interface HeroProps {
   onGetStartedClick: () => void;
@@ -14,9 +14,9 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
         <img 
           src={heroStudy} 
           alt="Students studying" 
-          className="w-full h-full object-cover opacity-20 dark:opacity-10"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-primary-light/90 to-background/95"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-primary-light/5 to-background/10"></div>
       </div>
 
       <div className="container mx-auto relative z-10">
