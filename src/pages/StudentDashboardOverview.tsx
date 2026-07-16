@@ -326,13 +326,6 @@ export default function StudentDashboardOverview() {
           {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
         </p>
       )}
-      <p className="text-muted-foreground">
-        {monthlyRank && monthlyRank <= 10 
-          ? <span className="font-black text-white">You're in the Top 10 this month! Keep it up!</span> 
-          : monthlyRank && monthlyRank <= 12 
-          ? `You're ${12 - monthlyRank} ranks away from Top 10!` 
-          : "Ready to ace your exams? Start practicing to climb the leaderboard!"}
-      </p>
     </div>
 
       <Separator className="my-8 opacity-10" />
