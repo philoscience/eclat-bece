@@ -48,15 +48,15 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
           <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto animate-scale-in" style={{ animationDelay: "0.3s" }}>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-primary">5K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Nigerian Students</div>
+              <div className="text-sm text-white mt-1">Nigerian Students</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-primary">50K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Practice Questions</div>
+              <div className="text-sm text-white mt-1">Practice Questions</div>
             </div>
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-accent">₦1.5M+</div>
-              <div className="text-sm text-muted-foreground mt-1">Prizes Awarded</div>
+              <div className="text-sm text-white mt-1">Prizes Awarded</div>
             </div>
           </div>
         </div>
