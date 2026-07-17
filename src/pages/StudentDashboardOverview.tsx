@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BookOpen, ClipboardList, TrendingUp, Trophy, Target, ArrowRight, Copy, Check, Swords } from "lucide-react";
+import { BookOpen, ClipboardList, TrendingUp, Trophy, Target, ArrowRight, Copy, Check, Swords, Flame, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -250,6 +250,19 @@ export default function StudentDashboardOverview() {
     },
   ];
 
+  const earnedBadgesCount = [
+    completedQuizzesCount > 0,
+    completedQuizzesCount >= 10,
+    currentStreak >= 5,
+    monthlyRank !== null && monthlyRank <= 10,
+    totalWins > 0,
+  ].filter(Boolean).length;
+
+  const xpPoints = Math.max(
+    0,
+    Math.round((totalQuestions * 0.5) + (completedQuizzesCount * 24) + (averageScore * 2) + (currentStreak * 10) + (totalWins * 40))
+  );
+
   const [copiedCode, setCopiedCode] = useState(false);
 
   const handleCopyCode = async () => {
@@ -261,37 +274,79 @@ export default function StudentDashboardOverview() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-8 max-w-7xl overflow-x-hidden">
+    <div className="container mx-auto px-10 py-6 max-w-7xl overflow-x-hidden">
       {/* Welcome Section */}
-      <div className="mb-16 animate-fade-in">
-        <div className="flex items-center gap-3 mb-2 flex-wrap">
-          <h2 className="text-3xl font-bold text-foreground">Welcome back, {userName}! 🎉</h2>
-          {totalWins > 0 && (
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-              badgeLevel === 'platinum' ? 'bg-cyan-100 dark:bg-cyan-900/30 border-2 border-cyan-300 dark:border-cyan-600' :
-              badgeLevel === 'gold' ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600' :
-              badgeLevel === 'silver' ? 'bg-slate-100 dark:bg-slate-800/30 border-2 border-slate-300 dark:border-slate-600' :
-              'bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700'
-            }`}>
-              <span>{badgeLevel === 'platinum' ? '💎' : badgeLevel === 'gold' ? '🥇' : badgeLevel === 'silver' ? '🥈' : '🥉'}</span>
+      <div className="mb-8 sm:mb-10 animate-fade-in">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:gap-6">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
+              <h2 className="text-3xl font-bold text-foreground">Welcome back, {userName}! 🎉</h2>
+              {totalWins > 0 && (
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                  badgeLevel === 'platinum' ? 'bg-cyan-100 dark:bg-cyan-900/30 border-2 border-cyan-300 dark:border-cyan-600' :
+                  badgeLevel === 'gold' ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600' :
+                  badgeLevel === 'silver' ? 'bg-slate-100 dark:bg-slate-800/30 border-2 border-slate-300 dark:border-slate-600' :
+                  'bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700'
+                }`}>
+                  <span>{badgeLevel === 'platinum' ? '💎' : badgeLevel === 'gold' ? '🥇' : badgeLevel === 'silver' ? '🥈' : '🥉'}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      {classYear && (
-        <p className="text-lg font-semibold text-primary mb-2">
-          {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
-        </p>
-      )}
-    </div>
+            {classYear && (
+              <p className="text-lg font-semibold text-primary mb-2">
+                {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
+              </p>
+            )}
+            <p className="text-base text-muted-foreground max-w-2xl">
+              Ready to ace your exams? <span className="hidden sm:inline">You're 2 ranks away from Top 10 nationally!</span>
+              <span className="sm:hidden">Keep practicing!</span>
+            </p>
+          </div>
 
-      <Separator className="my-10 opacity-10" />
+          <Card className="w-full xl:w-[420px] bg-card border-border/60 shadow-soft rounded-2xl overflow-hidden">
+            <CardContent className="p-5 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/60">
+                <div className="flex items-center gap-3 py-4 sm:py-0 sm:pr-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                    <Flame size={20} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground leading-none">{currentStreak}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Day Streak</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 py-4 sm:py-0 sm:px-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground leading-none">{earnedBadgesCount}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Badges</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 py-4 sm:py-0 sm:pl-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-500/10 text-green-600 border border-green-500/20">
+                    <TrendingUp size={20} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground leading-none">{xpPoints}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Rank</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Separator className="my-8 sm:my-10 opacity-10" />
 
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up overflow-x-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-2 sm:mt-3 animate-slide-up overflow-x-hidden">
         <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/practice")}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+          <CardContent className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm text-muted-foreground">Start Questions</p>
                 <p className="text-3xl font-bold text-primary">Start</p>
@@ -301,8 +356,8 @@ export default function StudentDashboardOverview() {
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+          <CardContent className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground mb-1">Duel of Minds</p>
                 <div className="flex items-baseline gap-2">
@@ -320,8 +375,8 @@ export default function StudentDashboardOverview() {
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/leaderboard")}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+          <CardContent className="p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground mb-1">See Rankings</p>
                 <div className="flex items-baseline gap-2">
@@ -339,10 +394,10 @@ export default function StudentDashboardOverview() {
         </Card>
       </div>
 
-      <Separator className="my-10 opacity-[0.07]" />
+      <Separator className="my-6 opacity-[0.07]" />
 
       {/* Feature Cards */}
-      <div className="mb-12 overflow-x-hidden">
+      <div className="mb-8 overflow-x-hidden">
         <h3 className="text-2xl font-bold text-foreground mb-6">Quick Access</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {featureCards.map((feature, index) => {

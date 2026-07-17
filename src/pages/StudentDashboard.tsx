@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { BookOpen, Trophy, TrendingUp, Target, Flame, LogOut, Settings, Menu, Lock } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { BookOpen, Trophy, TrendingUp, Target, Flame, LogOut, Settings, Menu, Lock, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompetitionLeaderboards } from "@/components/CompetitionLeaderboards";
 import { PracticeAssignment, Assignment } from "@/components/PracticeAssignment";
@@ -31,6 +31,11 @@ export default function StudentDashboard() {
   const [classYear, setClassYear] = useState<string | null>(null);
   const [subjectCounts, setSubjectCounts] = useState<Record<string, number>>({});
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [completedQuizzesCount, setCompletedQuizzesCount] = useState(0);
+  const [totalQuestionsAnswered, setTotalQuestionsAnswered] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
+  const [monthlyRank, setMonthlyRank] = useState<number | null>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -38,7 +43,7 @@ export default function StudentDashboard() {
 
   const logo = theme === "dark" ? logoLight : logoDark;
 
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     if (!user) return;
 
     // Fetch user name
@@ -64,9 +69,9 @@ export default function StudentDashboard() {
       if (studentData.class_year) setClassYear(studentData.class_year);
       setIsPremium(!!studentData.is_premium);
     }
-  };
+  }, [user]);
 
-  const fetchQuestionCounts = async () => {
+  const fetchQuestionCounts = useCallback(async () => {
     if (!user) return;
 
     // First get the student's class year
@@ -79,7 +84,7 @@ export default function StudentDashboard() {
     if (!studentData?.class_year) return;
 
     // Determine which table to query based on class year
-    const tableName = studentData.class_year === 'year_6'
+    const tableName: "quiz_questions_year6" | "quiz_questions_year9" = studentData.class_year === 'year_6'
       ? 'quiz_questions_year6'
       : 'quiz_questions_year9';
 
@@ -89,7 +94,7 @@ export default function StudentDashboard() {
     await Promise.all(
       subjectsToFetch.map(async (subject) => {
         const { count, error } = await supabase
-          .from(tableName as any)
+          .from(tableName)
           .select("*", { count: 'exact', head: true })
           .eq("subject", subject);
         
@@ -99,9 +104,9 @@ export default function StudentDashboard() {
       })
     );
     setSubjectCounts(counts);
-  };
+  }, [user]);
 
-  const fetchStreak = async () => {
+  const fetchStreak = useCallback(async () => {
     if (!user) return;
 
     const { data: studentData } = await supabase
@@ -121,9 +126,106 @@ export default function StudentDashboard() {
     if (streakData) {
       setCurrentStreak(streakData.current_streak);
     }
-  };
+  }, [user]);
 
-  const fetchAssignments = async () => {
+  const fetchProgressStats = useCallback(async () => {
+    if (!user) return;
+
+    const { data: studentData } = await supabase
+      .from("students")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!studentData?.id) return;
+
+    const { data: quizResults } = await supabase
+      .from("quiz_results")
+      .select("total_questions, score")
+      .eq("student_id", studentData.id);
+
+    if (!quizResults) return;
+
+    setCompletedQuizzesCount(quizResults.length);
+
+    if (quizResults.length > 0) {
+      const questionsAnswered = quizResults.reduce((sum, result) => sum + result.total_questions, 0);
+      const average = quizResults.reduce((sum, result) => sum + result.score, 0) / quizResults.length;
+      const wins = quizResults.filter((result) => result.score >= 80).length;
+
+      setTotalQuestionsAnswered(questionsAnswered);
+      setAverageScore(Math.round(average));
+      setTotalWins(wins);
+    } else {
+      setTotalQuestionsAnswered(0);
+      setAverageScore(0);
+      setTotalWins(0);
+    }
+  }, [user]);
+
+  const fetchMonthlyRank = useCallback(async () => {
+    if (!user) return;
+
+    const { data: studentData } = await supabase
+      .from("students")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!studentData?.id) return;
+
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const { data: monthlyResults } = await supabase
+      .from("quiz_results")
+      .select("student_id, correct_answers")
+      .gte("completed_at", firstDayOfMonth);
+
+    if (!monthlyResults) return;
+
+    const { data: allStudents } = await supabase
+      .from("students")
+      .select("id, user_id");
+
+    const { data: allProfiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, username");
+
+    if (!allStudents || !allProfiles) return;
+
+    const profileMap = new Map(allProfiles.map((profile) => [profile.id, profile]));
+    const studentPointsMap = new Map<string, number>();
+    const studentNamesMap = new Map<string, string>();
+
+    allStudents.forEach((student) => {
+      studentPointsMap.set(student.id, 0);
+      const profile = profileMap.get(student.user_id);
+      const name = profile?.full_name || profile?.username || "Unknown Student";
+      studentNamesMap.set(student.id, name);
+    });
+
+    monthlyResults.forEach((result) => {
+      const currentPoints = studentPointsMap.get(result.student_id) || 0;
+      studentPointsMap.set(result.student_id, currentPoints + (result.correct_answers * 100));
+    });
+
+    const rankings = Array.from(studentPointsMap.entries()).map(([studentId, points]) => ({
+      studentId,
+      points,
+      name: studentNamesMap.get(studentId) || "",
+    }));
+
+    rankings.sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      return a.name.localeCompare(b.name);
+    });
+
+    const rank = rankings.findIndex((student) => student.studentId === studentData.id) + 1;
+    setMonthlyRank(rank > 0 ? rank : null);
+  }, [user]);
+
+  const fetchAssignments = useCallback(async () => {
     if (!user) return;
 
     setIsLoadingAssignments(true);
@@ -150,25 +252,29 @@ export default function StudentDashboard() {
     } finally {
       setIsLoadingAssignments(false);
     }
-  };
+  }, [user]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await Promise.all([
       fetchUserData(),
       fetchQuestionCounts(),
       fetchStreak(),
+      fetchProgressStats(),
+      fetchMonthlyRank(),
       fetchAssignments()
     ]);
     setRefreshing(false);
-  };
+  }, [fetchAssignments, fetchMonthlyRank, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
 
   useEffect(() => {
     fetchUserData();
     fetchQuestionCounts();
     fetchStreak();
+    fetchProgressStats();
+    fetchMonthlyRank();
     fetchAssignments();
-  }, [user]);
+  }, [fetchAssignments, fetchMonthlyRank, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
 
   // Pull to refresh logic
   useEffect(() => {
@@ -195,7 +301,7 @@ export default function StudentDashboard() {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [refreshing]);
+  }, [handleRefresh, refreshing]);
 
   const subjects = [
     { name: "Mathematics", icon: "📐", difficulty: "Core Subject", questions: subjectCounts["Mathematics"] || 0, isPremium: false },
@@ -220,6 +326,19 @@ export default function StudentDashboard() {
     { name: "Top 10%", icon: "👑", earned: false },
   ];
 
+  const earnedBadgesCount = [
+    completedQuizzesCount > 0,
+    completedQuizzesCount >= 10,
+    currentStreak >= 5,
+    totalWins > 0,
+    averageScore >= 80,
+  ].filter(Boolean).length;
+
+  const displayRank = monthlyRank ?? Math.max(
+    1,
+    100 - Math.round((averageScore * 0.6) + (currentStreak * 2) + (totalWins * 4) + (completedQuizzesCount * 1.5))
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-light/20 via-background to-accent-light/20 overflow-hidden">
       {refreshing && (
@@ -232,7 +351,7 @@ export default function StudentDashboard() {
       {/* Header - Mobile Optimized */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Logo & Streak */}
+          {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-4">
             <img
               src={logo}
@@ -240,26 +359,6 @@ export default function StudentDashboard() {
               className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer"
               onClick={() => navigate("/")}
             />
-            {/* Streak - Hide on very small screens */}
-            <div className={`hidden xs:flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 rounded-full ${currentStreak === 0
-              ? 'bg-destructive/20'
-              : currentStreak >= 7
-                ? 'bg-green-500/20'
-                : 'bg-accent-light'
-              }`}>
-              <Flame className={`${currentStreak === 0
-                ? 'text-destructive'
-                : currentStreak >= 7
-                  ? 'text-green-600'
-                  : 'text-accent'
-                }`} size={14} />
-              <span className={`text-xs sm:text-sm font-semibold ${currentStreak === 0
-                ? 'text-destructive'
-                : currentStreak >= 7
-                  ? 'text-green-600'
-                  : 'text-accent'
-                }`}>{currentStreak}</span>
-            </div>
           </div>
 
           {/* Actions */}
@@ -303,23 +402,61 @@ export default function StudentDashboard() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section - Mobile Optimized */}
-        <div className="mb-6 sm:mb-8 md:animate-fade-in">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Welcome back, {userName}! <span className="inline-block">🎉</span>
-          </h2>
-          {classYear && (
-            <p className="text-base sm:text-lg font-semibold text-primary mb-2">
-              {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
-            </p>
-          )}
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Ready to ace your exams? <span className="hidden sm:inline">You're 2 ranks away from Top 10 nationally!</span>
-            <span className="sm:hidden">Keep practicing!</span>
-          </p>
+        <div className="mb-10 sm:mb-12 md:animate-fade-in">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:gap-6">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                Welcome back, {userName}! <span className="inline-block">🎉</span>
+              </h2>
+              {classYear && (
+                <p className="text-base sm:text-lg font-semibold text-primary mb-2">
+                  {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
+                </p>
+              )}
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+                Ready to ace your exams? <span className="hidden sm:inline">You're 2 ranks away from Top 10 nationally!</span>
+                <span className="sm:hidden">Keep practicing!</span>
+              </p>
+            </div>
+
+            <Card className="w-full xl:w-[420px] bg-card border-border/60 shadow-soft rounded-2xl overflow-hidden">
+              <CardContent className="p-5 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/60">
+                  <div className="flex items-center gap-3 py-4 sm:py-0 sm:pr-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                      <Flame size={20} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground leading-none">{currentStreak}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Day Streak</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 py-4 sm:py-0 sm:px-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 border border-purple-500/20">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground leading-none">{earnedBadgesCount}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Badges</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 py-4 sm:py-0 sm:pl-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 border border-yellow-500/20">
+                      <Trophy size={20} />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground leading-none">Rank {displayRank}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Monthly Rank</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Quick Stats - Mobile Optimized */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 md:animate-slide-up">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-10 md:mt-1 md:animate-slide-up">
           <Card className="border-2 hover:shadow-hover transition-all">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">

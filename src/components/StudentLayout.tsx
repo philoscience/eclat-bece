@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Flame, Settings, User as UserIcon, KeyRound, Link2 } from "lucide-react";
+import { Settings, User as UserIcon, KeyRound, Link2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -31,7 +31,6 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const [currentStreak, setCurrentStreak] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
@@ -58,7 +57,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
         setDisplayName(profileData.display_name || profileData.email || "");
       }
 
-      // Fetch student data for streak
+      // Fetch student data for badge stats
       const { data: studentData } = await supabase
         .from("students")
         .select("id")
@@ -66,16 +65,6 @@ export function StudentLayout({ children }: StudentLayoutProps) {
         .maybeSingle();
 
       if (!studentData?.id) return;
-
-      const { data: streakData } = await supabase
-        .from("student_streaks")
-        .select("current_streak")
-        .eq("student_id", studentData.id)
-        .maybeSingle();
-
-      if (streakData) {
-        setCurrentStreak(streakData.current_streak);
-      }
 
       // Fetch quiz results to calculate wins
       const { data: quizResults } = await supabase
@@ -117,30 +106,6 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                   className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer filter drop-shadow-lg flex-shrink-0" 
                   onClick={() => navigate("/")} 
                 />
-                <div className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-lg backdrop-blur-sm border flex-shrink-0 ${
-                  currentStreak === 0 
-                    ? 'bg-destructive/20 border-destructive/30' 
-                    : currentStreak >= 7 
-                    ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/40' 
-                    : 'bg-gradient-to-r from-accent/20 to-primary/20 border-accent/30'
-                }`}>
-                  <Flame 
-                    className={`transition-all duration-300 flex-shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] ${
-                      currentStreak === 0 
-                        ? 'text-destructive' 
-                        : currentStreak >= 7 
-                        ? 'text-green-600 drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]' 
-                        : 'text-accent drop-shadow-[0_0_8px_rgba(var(--accent),0.5)]'
-                    }`} 
-                  />
-                  <span className={`text-xs sm:text-sm md:text-[15px] font-bold tracking-tight whitespace-nowrap ${
-                    currentStreak === 0 
-                      ? 'text-destructive' 
-                      : currentStreak >= 7 
-                      ? 'text-green-600' 
-                      : 'text-accent'
-                  }`}>{currentStreak}-day streak!</span>
-                </div>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
                 <NotificationBell />
