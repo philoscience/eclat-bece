@@ -114,10 +114,10 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                 <img 
                   src={logo} 
                   alt="Éclat Logo" 
-                  className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer hover:scale-110 transition-all duration-300 filter drop-shadow-lg hover:drop-shadow-2xl flex-shrink-0" 
+                  className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer filter drop-shadow-lg flex-shrink-0" 
                   onClick={() => navigate("/")} 
                 />
-                <div className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 flex-shrink-0 ${
+                <div className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-lg backdrop-blur-sm border flex-shrink-0 ${
                   currentStreak === 0 
                     ? 'bg-destructive/20 border-destructive/30' 
                     : currentStreak >= 7 
