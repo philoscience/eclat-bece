@@ -64,11 +64,11 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 items-stretch gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <Card
               key={index}
-              className={`relative border-2 hover:shadow-hover transition-all duration-300 animate-slide-up ${
+              className={`relative flex h-full flex-col border-2 transition-all duration-300 animate-slide-up lg:min-h-[32rem] ${
                 plan.popular ? "border-accent shadow-glow" : "border-border"
               }`}
               style={{ animationDelay: `${index * 0.1}s` }}
@@ -85,8 +85,8 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
                   <span className="text-muted-foreground"> {plan.period}</span>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
+              <CardContent className="flex flex-1 flex-col">
+                <ul className="flex-1 space-y-3">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <Check className="text-primary flex-shrink-0 mt-0.5" size={18} />
@@ -96,7 +96,7 @@ export const Pricing = ({ onGetStartedClick }: PricingProps) => {
                 </ul>
                 <Button
                   variant={plan.popular ? "hero" : "outline"}
-                  className="w-full"
+                  className="mt-6 w-full"
                   size="lg"
                   onClick={onGetStartedClick}
                 >

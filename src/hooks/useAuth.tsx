@@ -1,22 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useAuth = () => {
   const { user, session, loading, signOut } = useAuthContext();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    const pathname = window.location.pathname;
-    await signOut();
-    if (pathname.includes("/parent")) {
-      navigate("/auth?role=parent");
-    } else if (pathname.includes("/school")) {
-      navigate("/auth?role=school");
-    } else if (pathname.includes("/admin")) {
-      navigate("/admin/login");
-    } else {
-      navigate("/auth?role=student");
-    }
+    await supabase.auth.signOut();
+    // Clear all local storage to ensure session is completely removed
+    localStorage.clear();
+    sessionStorage.clear();
+    // Use window.location.href to force a full page reload and clear any cached state
+    window.location.href = "/";
   };
 
   return { user, session, loading, signOut: handleSignOut };

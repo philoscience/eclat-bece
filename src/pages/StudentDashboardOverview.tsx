@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BookOpen, ClipboardList, TrendingUp, Trophy, Target, ArrowRight, Copy, Check } from "lucide-react";
+import { BookOpen, ClipboardList, TrendingUp, Trophy, Target, ArrowRight, Copy, Check, Swords } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { WinnerBadge, getBadgeLevel, BadgeLevel } from "@/components/WinnerBadge";
 
 interface QuizResult {
   id: string;
@@ -27,11 +28,18 @@ export default function StudentDashboardOverview() {
   const [averageScore, setAverageScore] = useState(0);
   const [monthlyRank, setMonthlyRank] = useState<number | null>(null);
   const [studentCode, setStudentCode] = useState<string>("");
+  const [currentStreak, setCurrentStreak] = useState(0);
   
   // Real database counts for badges
   const [availableQuestionsCount, setAvailableQuestionsCount] = useState(0);
   const [pendingAssignmentsCount, setPendingAssignmentsCount] = useState(0);
   const [completedQuizzesCount, setCompletedQuizzesCount] = useState(0);
+  
+  // Badge state
+  const [totalWins, setTotalWins] = useState(0);
+  const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
+  const [isFirstWin, setIsFirstWin] = useState(false);
+  const [badges, setBadges] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -77,6 +85,17 @@ export default function StudentDashboardOverview() {
         }
         setStudentId(studentData.id);
         
+        // Fetch streak data
+        const { data: streakData } = await supabase
+          .from("student_streaks")
+          .select("current_streak")
+          .eq("student_id", studentData.id)
+          .maybeSingle();
+        
+        if (streakData) {
+          setCurrentStreak(streakData.current_streak);
+        }
+        
         // Fetch actual pending assignments count
         const { count: pendingCount } = await supabase
           .from("practice_assignments")
@@ -114,6 +133,55 @@ export default function StudentDashboardOverview() {
             
             const avgScore = allResults.reduce((sum, result) => sum + result.score, 0) / allResults.length;
             setAverageScore(Math.round(avgScore));
+            
+            // Calculate wins (score >= 80%)
+            const wins = allResults.filter(result => result.score >= 80).length;
+            setTotalWins(wins);
+            setBadgeLevel(getBadgeLevel(wins));
+            setIsFirstWin(wins === 1);
+
+            // Calculate badges
+            const firstQuiz = allResults.length >= 1;
+            const tenQuiz = allResults.length >= 10;
+            const streakBadge = currentStreak >= 5;
+            const perfectScore = allResults.some(q => q.score === 100);
+            
+            // To determine Top 10%
+            const now = new Date();
+            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            const { data: monthlyResults } = await supabase
+              .from("quiz_results")
+              .select("student_id, score")
+              .gte("completed_at", firstDayOfMonth);
+            
+            let top10Badge = false;
+            if (monthlyResults && monthlyResults.length > 0) {
+              const studentScores = new Map<string, number[]>();
+              monthlyResults.forEach(r => {
+                if (!studentScores.has(r.student_id)) {
+                  studentScores.set(r.student_id, []);
+                }
+                studentScores.get(r.student_id)!.push(r.score);
+              });
+              const studentAverages = Array.from(studentScores.entries()).map(([id, scores]) => ({
+                id,
+                avg: scores.reduce((sum, score) => sum + score, 0) / scores.length
+              }));
+              studentAverages.sort((a, b) => b.avg - a.avg);
+              const rank = studentAverages.findIndex(s => s.id === studentData.id) + 1;
+              const totalStudents = studentAverages.length;
+              top10Badge = rank > 0 && (rank / totalStudents <= 0.1 || rank <= 3);
+            } else {
+              top10Badge = avgScore >= 85;
+            }
+
+            setBadges([
+              { name: "First Quiz", icon: "🎯", earned: firstQuiz },
+              { name: "10 Quiz Master", icon: "⭐", earned: tenQuiz },
+              { name: "5-Day Streak", icon: "🔥", earned: streakBadge },
+              { name: "Top 10%", icon: "👑", earned: top10Badge },
+              { name: "Perfect Score", icon: "💯", earned: perfectScore },
+            ]);
           }
         }
 
@@ -189,6 +257,15 @@ export default function StudentDashboardOverview() {
         : "Start Now",
     },
     {
+      title: "Duel of Minds",
+      description: "Challenge other students",
+      icon: Swords,
+      color: "text-purple-600",
+      bgColor: "bg-purple-500/10",
+      url: "/dashboard/student/duel-of-minds",
+      badge: "Compete Now",
+    },
+    {
       title: "View Assignments",
       description: "Check your practice assignments",
       icon: ClipboardList,
@@ -231,61 +308,109 @@ export default function StudentDashboardOverview() {
     <div className="container mx-auto px-4 py-8">
       {/* Welcome Section */}
       <div className="mb-12 animate-fade-in">
-        <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, {userName}! 🎉</h2>
+        <div className="flex items-center gap-3 mb-2">
+          <h2 className="text-3xl font-bold text-foreground">Welcome back, {userName}! 🎉</h2>
+          {totalWins > 0 && (
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+              badgeLevel === 'platinum' ? 'bg-cyan-100 dark:bg-cyan-900/30 border-2 border-cyan-300 dark:border-cyan-600' :
+              badgeLevel === 'gold' ? 'bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-300 dark:border-yellow-600' :
+              badgeLevel === 'silver' ? 'bg-slate-100 dark:bg-slate-800/30 border-2 border-slate-300 dark:border-slate-600' :
+              'bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700'
+            }`}>
+              <span>{badgeLevel === 'platinum' ? '💎' : badgeLevel === 'gold' ? '🥇' : badgeLevel === 'silver' ? '🥈' : '🥉'}</span>
+            </div>
+          )}
+        </div>
       {classYear && (
         <p className="text-lg font-semibold text-primary mb-2">
           {classYear === 'year_6' ? 'Year 6 • Common Entrance' : 'Year 9 • BECE'}
         </p>
       )}
-      <p className="text-muted-foreground">
-        {monthlyRank && monthlyRank <= 10 
-          ? "You're in the Top 10 this month! Keep it up!" 
-          : monthlyRank && monthlyRank <= 12 
-          ? `You're ${12 - monthlyRank} ranks away from Top 10!` 
-          : "Ready to ace your exams? Start practicing to climb the leaderboard!"}
-      </p>
     </div>
 
       <Separator className="my-8 opacity-10" />
 
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up">
-        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/practice")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Questions</p>
-                <p className="text-3xl font-bold text-primary">{totalQuestions}</p>
+                <p className="text-sm text-muted-foreground">Start Questions</p>
+                <p className="text-3xl font-bold text-primary">Start</p>
               </div>
               <Target className="text-primary" size={32} />
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-accent-light/30 to-accent-light/10 border-accent-light/40 shadow-soft hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Average Score</p>
-                <p className="text-3xl font-bold text-accent">{averageScore}%</p>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground mb-1">Duel of Minds</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-black text-purple-600">Compete</p>
+                  <span className="text-xs font-semibold text-purple-600/70 bg-purple-500/10 px-2 py-1 rounded-full">Challenge</span>
+                </div>
               </div>
-              <TrendingUp className="text-accent" size={32} />
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <Swords className="text-purple-600" size={32} />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full animate-pulse" />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all">
+        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/leaderboard")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Rank This Month</p>
-                <p className="text-3xl font-bold text-primary">
-                  {monthlyRank ? `#${monthlyRank}` : '-'}
-                </p>
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground mb-1">See Rankings</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-black text-primary">View</p>
+                </div>
               </div>
-              <Trophy className="text-accent" size={32} />
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <Trophy className="text-accent" size={32} />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse" />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Separator className="my-10 opacity-[0.07]" />
+
+      {/* Badges Section */}
+      <Card className="border-2 animate-scale-in mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Trophy className="text-accent" size={20} />
+            Badges Earned
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {badges.map((badge, idx) => (
+              <div
+                key={idx}
+                className={`flex flex-col items-center gap-2 p-3 rounded-lg border ${
+                  badge.earned 
+                    ? "bg-accent-light border-accent" 
+                    : "bg-muted border-border opacity-50"
+                }`}
+              >
+                <span className="text-2xl">{badge.icon}</span>
+                <span className="text-xs font-medium text-center">{badge.name}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <Separator className="my-10 opacity-[0.07]" />
 
@@ -324,43 +449,6 @@ export default function StudentDashboardOverview() {
       </div>
 
       <Separator className="my-10 opacity-[0.07]" />
-
-      {/* Recent Activity */}
-      <Card className="bg-gradient-to-br from-card to-background border-border/50 shadow-soft animate-fade-in">
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Your latest quiz results</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {recentActivity.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No quiz activity yet. Start practicing to see your results here!</p>
-              <Button 
-                onClick={() => navigate("/dashboard/student/practice")} 
-                className="mt-4"
-              >
-                Start Practice
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border border-border/30 hover:bg-muted/50 hover:shadow-soft transition-all">
-                  <div>
-                    <h4 className="font-semibold text-foreground">{activity.subject}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.total_questions} questions • {formatDistanceToNow(new Date(activity.completed_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{Math.round(activity.score)}%</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-        )}
-      </CardContent>
-    </Card>
 
     {/* Student Code Display */}
     {studentCode && (

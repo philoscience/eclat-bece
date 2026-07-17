@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
-import { Leaderboard } from "@/components/Leaderboard";
 import { About } from "@/components/About";
 import { Pricing } from "@/components/Pricing";
 import { Footer } from "@/components/Footer";
@@ -11,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
 
@@ -75,11 +73,8 @@ const Index = () => {
     navigate("/auth/signup/role-selection");
   };
 
-  const scrollToLeaderboard = () => {
-    const element = document.getElementById("leaderboard");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    const handleSignUpAction = () => {
+    navigate("/signup/role-selection");
   };
 
   if (isCheckingAuth) {
@@ -95,7 +90,6 @@ const Index = () => {
       <Navigation onLoginClick={handleLoginAction} onGetStartedClick={handleSignUpAction} />
       <Hero onGetStartedClick={handleSignUpAction} onViewLeaderboardClick={scrollToLeaderboard} />
       <Features />
-      <Leaderboard onViewFullLeaderboard={scrollToLeaderboard} />
       <About />
       <Pricing onGetStartedClick={handleSignUpAction} />
       <Footer />

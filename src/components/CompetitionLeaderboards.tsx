@@ -67,7 +67,10 @@ export const CompetitionLeaderboards = ({
                   </div>
                   <div>
                     <p className="font-black text-foreground">{currentUserName} (You)</p>
-                    <p className="text-xs font-semibold text-muted-foreground">Your current position • {currentPoints.toLocaleString()} pts</p>
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      Your current position • {currentPoints.toLocaleString()} pts
+                      {currentRank <= 10 && <span className="ml-2 font-black text-primary">• Top 10!</span>}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -114,7 +117,7 @@ export const CompetitionLeaderboards = ({
 
                     {/* Student Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm sm:text-base font-black text-foreground truncate">
+                      <h4 className={`text-sm sm:text-base text-foreground truncate ${student.rank <= 10 ? 'font-black' : 'font-bold'}`}>
                         {student.name}
                       </h4>
                       <p className="text-xs sm:text-sm font-semibold text-muted-foreground truncate">

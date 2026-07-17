@@ -133,7 +133,7 @@ export const PracticeAssignment = ({
                     className={`font-black rounded-xl px-6 h-11 ${assignment.status === 'completed' ? 'border-2' : 'shadow-lg shadow-primary/20'}`}
                     onClick={() => handleStart(assignment)}
                   >
-                    {assignment.status === 'completed' ? "Review" : "Start Task"}
+                    {assignment.status === 'completed' ? "Retry" : "Start Task"}
                   </Button>
                 </div>
               </div>

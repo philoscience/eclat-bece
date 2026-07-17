@@ -207,7 +207,7 @@ export default function AdminDashboard() {
             description: "Registered students",
         },
         {
-            title: "Total Questions",
+            title: "Practice Questions",
             value: stats.totalQuestions.toLocaleString(),
             icon: BookOpen,
             color: "text-green-600",
