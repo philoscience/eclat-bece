@@ -1,4 +1,4 @@
-import { LayoutDashboard, BookOpen, ClipboardList, TrendingUp, Trophy, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, ClipboardList, TrendingUp, Trophy, ChevronLeft, ChevronRight, LogOut, Award } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -21,6 +21,7 @@ const menuItems = [
   { title: "Practice", url: "/dashboard/student/practice", icon: BookOpen },
   { title: "Assignments", url: "/dashboard/student/assignments", icon: ClipboardList },
   { title: "Progress", url: "/dashboard/student/progress", icon: TrendingUp },
+  { title: "Achievements", url: "/dashboard/student/achievements", icon: Award },
   { title: "Leaderboard", url: "/dashboard/student/leaderboard", icon: Trophy },
 ];
 

@@ -39,7 +39,6 @@ export default function StudentDashboardOverview() {
   const [totalWins, setTotalWins] = useState(0);
   const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
   const [isFirstWin, setIsFirstWin] = useState(false);
-  const [badges, setBadges] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -139,49 +138,6 @@ export default function StudentDashboardOverview() {
             setTotalWins(wins);
             setBadgeLevel(getBadgeLevel(wins));
             setIsFirstWin(wins === 1);
-
-            // Calculate badges
-            const firstQuiz = allResults.length >= 1;
-            const tenQuiz = allResults.length >= 10;
-            const streakBadge = currentStreak >= 5;
-            const perfectScore = allResults.some(q => q.score === 100);
-            
-            // To determine Top 10%
-            const now = new Date();
-            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            const { data: monthlyResults } = await supabase
-              .from("quiz_results")
-              .select("student_id, score")
-              .gte("completed_at", firstDayOfMonth);
-            
-            let top10Badge = false;
-            if (monthlyResults && monthlyResults.length > 0) {
-              const studentScores = new Map<string, number[]>();
-              monthlyResults.forEach(r => {
-                if (!studentScores.has(r.student_id)) {
-                  studentScores.set(r.student_id, []);
-                }
-                studentScores.get(r.student_id)!.push(r.score);
-              });
-              const studentAverages = Array.from(studentScores.entries()).map(([id, scores]) => ({
-                id,
-                avg: scores.reduce((sum, score) => sum + score, 0) / scores.length
-              }));
-              studentAverages.sort((a, b) => b.avg - a.avg);
-              const rank = studentAverages.findIndex(s => s.id === studentData.id) + 1;
-              const totalStudents = studentAverages.length;
-              top10Badge = rank > 0 && (rank / totalStudents <= 0.1 || rank <= 3);
-            } else {
-              top10Badge = avgScore >= 85;
-            }
-
-            setBadges([
-              { name: "First Quiz", icon: "🎯", earned: firstQuiz },
-              { name: "10 Quiz Master", icon: "⭐", earned: tenQuiz },
-              { name: "5-Day Streak", icon: "🔥", earned: streakBadge },
-              { name: "Top 10%", icon: "👑", earned: top10Badge },
-              { name: "Perfect Score", icon: "💯", earned: perfectScore },
-            ]);
           }
         }
 
@@ -382,35 +338,6 @@ export default function StudentDashboardOverview() {
           </CardContent>
         </Card>
       </div>
-
-      <Separator className="my-10 opacity-[0.07]" />
-
-      {/* Badges Section */}
-      <Card className="border-2 animate-scale-in mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Trophy className="text-accent" size={20} />
-            Badges Earned
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {badges.map((badge, idx) => (
-              <div
-                key={idx}
-                className={`flex flex-col items-center gap-2 p-3 rounded-lg border ${
-                  badge.earned 
-                    ? "bg-accent-light border-accent" 
-                    : "bg-muted border-border opacity-50"
-                }`}
-              >
-                <span className="text-2xl">{badge.icon}</span>
-                <span className="text-xs font-medium text-center">{badge.name}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       <Separator className="my-10 opacity-[0.07]" />
 

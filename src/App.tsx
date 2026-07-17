@@ -26,6 +26,7 @@ import StudentAssignments from "./pages/StudentAssignments";
 import StudentProgressPage from "./pages/StudentProgressPage";
 import StudentLeaderboardPage from "./pages/StudentLeaderboardPage";
 import DuelOfMindsPage from "./pages/DuelOfMindsPage";
+import StudentAchievementsPage from "./pages/StudentAchievementsPage";
 import ParentDashboard from "./pages/ParentDashboard";
 import MyChildren from "./pages/parent/MyChildren";
 import SubscriptionsPage from "./pages/parent/SubscriptionsPage";
@@ -126,6 +127,13 @@ const App = () => (
                 <ProtectedRoute requiredRole="student">
                   <StudentLayout>
                     <DuelOfMindsPage />
+                  </StudentLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard/student/achievements" element={
+                <ProtectedRoute requiredRole="student">
+                  <StudentLayout>
+                    <StudentAchievementsPage />
                   </StudentLayout>
                 </ProtectedRoute>
               } />
