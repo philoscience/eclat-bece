@@ -109,12 +109,12 @@ export function StudentLayout({ children }: StudentLayoutProps) {
           {/* Header */}
           <header className="border-b border-border/30 bg-gradient-to-r from-background via-background/98 to-background backdrop-blur-xl sticky top-0 z-50 shadow-[0_4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
             <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-5">
-              <div className="flex items-center gap-2 sm:gap-3 md:gap-6 overflow-x-auto">
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-6 overflow-x-auto no-scrollbar">
                 <SidebarTrigger className="md:hidden hover:scale-110 transition-transform duration-200 flex-shrink-0" />
                 <img 
                   src={logo} 
                   alt="Éclat Logo" 
-                  className="h-12 sm:h-14 md:h-16 w-auto cursor-pointer hover:scale-110 transition-all duration-300 filter drop-shadow-lg hover:drop-shadow-2xl flex-shrink-0" 
+                  className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer hover:scale-110 transition-all duration-300 filter drop-shadow-lg hover:drop-shadow-2xl flex-shrink-0" 
                   onClick={() => navigate("/")} 
                 />
                 <div className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 px-2 sm:px-3 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-lg backdrop-blur-sm border transition-all duration-300 hover:scale-105 flex-shrink-0 ${

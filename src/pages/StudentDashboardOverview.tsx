@@ -261,10 +261,10 @@ export default function StudentDashboardOverview() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-10 py-8 max-w-7xl overflow-x-hidden">
       {/* Welcome Section */}
-      <div className="mb-12 animate-fade-in">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-16 animate-fade-in">
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
           <h2 className="text-3xl font-bold text-foreground">Welcome back, {userName}! 🎉</h2>
           {totalWins > 0 && (
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
@@ -284,12 +284,12 @@ export default function StudentDashboardOverview() {
       )}
     </div>
 
-      <Separator className="my-8 opacity-10" />
+      <Separator className="my-10 opacity-10" />
 
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up">
-        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/practice")}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up overflow-x-hidden">
+        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/practice")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -300,7 +300,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
+        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -319,7 +319,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/leaderboard")}>
+        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/leaderboard")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -342,15 +342,15 @@ export default function StudentDashboardOverview() {
       <Separator className="my-10 opacity-[0.07]" />
 
       {/* Feature Cards */}
-      <div className="mb-12">
+      <div className="mb-12 overflow-x-hidden">
         <h3 className="text-2xl font-bold text-foreground mb-6">Quick Access</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {featureCards.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all cursor-pointer group animate-scale-in"
+                className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all cursor-pointer group animate-scale-in overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onClick={() => navigate(feature.url)}
               >
@@ -379,7 +379,7 @@ export default function StudentDashboardOverview() {
 
     {/* Student Code Display */}
     {studentCode && (
-      <Card className="mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg animate-fade-in">
+      <Card className="mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg animate-fade-in overflow-x-hidden">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
