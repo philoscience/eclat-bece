@@ -38,7 +38,7 @@ export const About = () => {
                 className="relative animate-slide-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="bg-gradient-card border-2 border-border rounded-xl p-6 hover:border-primary hover:shadow-hover transition-all">
+                <div className="bg-gradient-card border-2 border-border rounded-xl p-6">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg">
                       {index + 1}
@@ -70,7 +70,7 @@ export const About = () => {
                 { icon: Target, text: "Personalized study insights", color: "text-primary" },
                 { icon: Smartphone, text: "Mobile & desktop optimized", color: "text-accent" },
               ].map((benefit, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-background/60 rounded-lg hover:bg-background/80 transition-all hover:shadow-soft">
+                <div key={index} className="flex items-start gap-3 p-4 bg-background/60 rounded-lg">
                   <div className={`${benefit.color} mt-1 flex-shrink-0`}>
                     <benefit.icon size={24} />
                   </div>
