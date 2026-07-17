@@ -54,6 +54,7 @@ import FlagReportsPage from "./pages/admin/FlagReportsPage";
 import { AuthProvider } from "./components/AuthProvider";
 import { PrivacyPolicy } from "./components/PrivacyPolicy";
 import { TermsOfService } from "./components/TermsOfService";
+import { RankProvider } from "./contexts/RankContext";
 
 const queryClient = new QueryClient();
 
@@ -64,7 +65,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AuthProvider>
-          <BrowserRouter>
+          <RankProvider>
+            <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -213,6 +215,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          </RankProvider>
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
