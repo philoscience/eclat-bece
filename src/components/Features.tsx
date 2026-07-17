@@ -30,7 +30,7 @@ export const Features = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
           <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-            Everything You Need to Excel
+            Empower Your Child's Success - Tools For Parents
           </h2>
           <p className="text-lg text-muted-foreground">
             Powerful features designed to make learning engaging, competitive, and rewarding.

@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroStudy from "@/assets/logo-child1.jpeg";
+import heroStudy from "@/assets/Hero.jpeg";
 
 interface HeroProps {
   onGetStartedClick: () => void;
@@ -28,13 +28,15 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight animate-slide-up" style={{ color: 'rgb(158, 137, 15)' }}>
-             Ace BECE & Common Entrance. Compete Nationwide. Win Big.
+          <h1 className="font-bold leading-tight animate-slide-up" style={{ fontSize: '48px' }}>
+             <span style={{ color: '#FFFFFF' }}>Ace BECE & Common Entrance.</span>
+             <span style={{ color: '#40D3F2' }}> Compete Nationwide.</span>
+             <span style={{ color: '#FF9E1B' }}> Win Big.</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            Eclat: The only exam prep that feels like a tournament. Unlimited practice. Live national rankings. Real prizes for top performers
+          <p className="text-xl sm:text-2xl max-w-2xl mx-auto leading-relaxed animate-slide-up" style={{ color: '#f7f1f1e3', animationDelay: "0.1s" }}>
+            Eclat: The only exam prep that feels like a tournament. Unlimited practice. Live national rankings. Real prizes for top performers.
           </p>
 
           {/* CTA Buttons */}
@@ -47,16 +49,16 @@ export const Hero = ({ onGetStartedClick }: HeroProps) => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto animate-scale-in" style={{ animationDelay: "0.3s" }}>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary">5K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Nigerian Students</div>
+              <div className="text-3xl sm:text-4xl font-bold text-primary [text-shadow:0_0_12px_rgba(64,211,242,0.6)]">5K+</div>
+              <div className="text-sm text-white mt-1">Nigerian Students</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-primary">50K+</div>
-              <div className="text-sm text-muted-foreground mt-1">Practice Questions</div>
+              <div className="text-3xl sm:text-4xl font-bold text-purple-400 [text-shadow:0_0_12px_rgba(168,85,247,0.7)]">50K+</div>
+              <div className="text-sm text-white mt-1">Practice Questions</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent">₦1.5M+</div>
-              <div className="text-sm text-muted-foreground mt-1">Prizes Awarded</div>
+              <div className="text-3xl sm:text-4xl font-bold text-accent [text-shadow:0_0_12px_rgba(255,158,27,0.6)]">₦1.5M+</div>
+              <div className="text-sm text-white mt-1">Prizes Awarded</div>
             </div>
           </div>
         </div>
