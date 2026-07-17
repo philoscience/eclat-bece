@@ -366,7 +366,7 @@ export default function AuthPage() {
                 )}
 
             <div className="mt-6 text-center">
-              <Button variant="ghost" onClick={() => navigate("/signup/role-selection")} className="text-sm">
+              <Button variant="ghost" onClick={() => navigate("/auth/signup/role-selection")} className="text-sm">
                 ← Back to Role Selection
               </Button>
             </div>

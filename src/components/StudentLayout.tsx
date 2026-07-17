@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Flame, Settings, User as UserIcon, KeyRound, Link2 } from "lucide-react";
+import { Flame, Settings, User as UserIcon, KeyRound, Link2, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/NotificationBell";

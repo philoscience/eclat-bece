@@ -77,9 +77,12 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
   const checkAuthStatus = async () => {
     try {
+      console.log("[ProtectedRoute] Starting auth check, requiredRole:", requiredRole);
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("[ProtectedRoute] Session:", session ? "exists" : "null", "user:", session?.user?.id);
 
       if (!session?.user) {
+        console.log("[ProtectedRoute] No session, redirecting to auth");
         const pathname = window.location.pathname;
         if (pathname.includes("/parent")) {
           navigate("/auth?role=parent");
@@ -94,12 +97,14 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
       // Check if email is verified
       if (!session.user.email_confirmed_at) {
+        console.log("[ProtectedRoute] Email not verified, redirecting to verify-email");
         navigate("/verify-email");
         return;
       }
 
       // If a specific role is required, check it
       if (requiredRole) {
+        console.log("[ProtectedRoute] Checking role:", requiredRole);
         // Check if user has the required role
         let { data: roleData } = await supabase
           .from("user_roles")
@@ -108,13 +113,17 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
           .eq("role", requiredRole)
           .maybeSingle();
 
+        console.log("[ProtectedRoute] Role data:", roleData);
+
         if (!roleData) {
+          console.log("[ProtectedRoute] Role not found, attempting provision");
           // Try to provision user roles/records (idempotent)
           const { data: { session: currentSession } } = await supabase.auth.getSession();
           if (currentSession?.access_token) {
-            await supabase.functions.invoke("provision-user", {
+            const { data: provisionData, error: provisionError } = await supabase.functions.invoke("provision-user", {
               headers: { Authorization: `Bearer ${currentSession.access_token}` },
             });
+            console.log("[ProtectedRoute] Provision result:", provisionData, "error:", provisionError);
           }
 
           // Re-check actual role after provisioning
@@ -124,13 +133,17 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
             .eq("user_id", session.user.id)
             .maybeSingle();
 
+          console.log("[ProtectedRoute] User role after provision:", userRole);
+
           if (!userRole) {
+            console.log("[ProtectedRoute] Still no role after provision, redirecting to role-selection");
             navigate("/role-selection");
             return;
           }
 
           // If they have a role but it's not the required one, route to their dashboard
           if (userRole.role !== requiredRole) {
+            console.log("[ProtectedRoute] Role mismatch, redirecting to correct dashboard");
             if (userRole.role === "student") navigate("/dashboard/student");
             else if (userRole.role === "parent") navigate("/dashboard/parent");
             else if (userRole.role === "school") navigate("/dashboard/school");
@@ -145,22 +158,27 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
 
         // Students are provisioned by parents, so they should already have a student record.
         if (requiredRole === "student") {
+          console.log("[ProtectedRoute] Checking student record for user:", session.user.id);
           const { data: studentData } = await supabase
             .from("students")
             .select("id")
             .eq("user_id", session.user.id)
             .maybeSingle();
 
+          console.log("[ProtectedRoute] Student data:", studentData);
+
           if (!studentData) {
+            console.log("[ProtectedRoute] No student record found, redirecting to auth");
             navigate("/auth?role=student");
             return;
           }
         }
       }
 
+      console.log("[ProtectedRoute] Auth check passed, setting authorized");
       setIsAuthorized(true);
     } catch (error) {
-      console.error("Auth check error:", error);
+      console.error("[ProtectedRoute] Auth check error:", error);
       const pathname = window.location.pathname;
       if (pathname.includes("/parent")) {
         navigate("/auth?role=parent");
