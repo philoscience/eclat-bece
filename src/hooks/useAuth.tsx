@@ -12,7 +12,7 @@ export const useAuth = () => {
     localStorage.clear();
     sessionStorage.clear();
     // Use window.location.href to force a full page reload and clear any cached state
-    window.location.href = "/auth?role=student";
+    window.location.href = "/";
   };
 
   return { user, session, loading, signOut: handleSignOut };

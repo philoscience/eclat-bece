@@ -1,7 +1,10 @@
 import { BookOpen, Trophy, BarChart3, CheckCircle2, Target, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 export const Features = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: BookOpen,
@@ -9,6 +12,7 @@ export const Features = () => {
       description: "Create custom Mathematics, English, Basic Science, and Social Studies quizzes tailored to your child's learning needs. Set questions, choose difficulty levels, and track progress from one place.",
       color: "text-primary",
       bgColor: "bg-primary-light",
+      onClick: () => navigate("/dashboard/parent"),
     },
     {
       icon: BarChart3,
@@ -16,6 +20,7 @@ export const Features = () => {
       description: "Track your ward's progress with in-depth analytics. Parents can monitor performance in real-time.",
       color: "text-primary-glow",
       bgColor: "bg-primary-light",
+      onClick: () => navigate("/dashboard/parent"),
     },
   ];
 
@@ -39,8 +44,9 @@ export const Features = () => {
             return (
               <Card
                 key={index}
-                className="border-2 hover:border-primary hover:shadow-hover transition-all duration-300 bg-gradient-card animate-slide-up group"
+                className={`border-2 hover:border-primary hover:shadow-hover transition-all duration-300 bg-gradient-card animate-slide-up group ${feature.onClick ? 'cursor-pointer' : ''}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={feature.onClick}
               >
                 <CardHeader>
                   <div className={`w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
