@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Settings, User as UserIcon, KeyRound, Link2 } from "lucide-react";
+import { Flame, Settings, User as UserIcon, KeyRound, Link2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -10,6 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentSidebar } from "@/components/StudentSidebar";
@@ -29,7 +30,7 @@ interface StudentLayoutProps {
 
 export function StudentLayout({ children }: StudentLayoutProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { theme } = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -147,6 +148,11 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                     <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
                       <Link2 className="mr-2 h-4 w-4" />
                       <span>Account Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log Out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
