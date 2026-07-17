@@ -11,7 +11,7 @@ export default function LoginRoleSelectionPage() {
       id: "student",
       icon: GraduationCap,
       title: "Student",
-      description: "Access quizzes and track your progress",
+      description: "Take quizzes and win points",
       color: "from-blue-500 to-cyan-500",
     },
     {
@@ -38,7 +38,7 @@ export default function LoginRoleSelectionPage() {
             <BookOpen className="text-primary" size={40} />
             <h1 className="text-4xl font-bold text-foreground">Éclat</h1>
           </div>
-          <p className="text-xl text-muted-foreground">Select your role to login</p>
+          <p className="text-xl text-muted-foreground">Login as</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -47,7 +47,7 @@ export default function LoginRoleSelectionPage() {
             return (
               <Card
                 key={role.id}
-                className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 animate-scale-in group"
+                className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-105 border-2 animate-scale-in group h-full flex flex-col"
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => navigateToRolePage(role.id, navigate)}
               >
@@ -58,7 +58,7 @@ export default function LoginRoleSelectionPage() {
                   <CardTitle className="text-xl">{role.title}</CardTitle>
                   <CardDescription>{role.description}</CardDescription>
                 </CardHeader>
-                <CardContent className="text-center">
+                <CardContent className="mt-auto text-center">
                   <p className="text-sm text-primary font-medium">Click to continue →</p>
                 </CardContent>
               </Card>
