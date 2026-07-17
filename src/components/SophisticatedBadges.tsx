@@ -109,11 +109,7 @@ export const SophisticatedBadges = ({ badges }: SophisticatedBadgesProps) => {
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              badge.earned 
-                                ? `bg-gradient-to-r ${config.bgColor}` 
-                                : 'bg-muted-foreground/30'
-                            }`}
+                            className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${config.bgColor}`}
                             style={{ width: `${Math.min((badge.progress / badge.maxProgress) * 100, 100)}%` }}
                           />
                         </div>

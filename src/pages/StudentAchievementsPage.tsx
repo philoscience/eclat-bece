@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { SophisticatedBadges } from "@/components/SophisticatedBadges";
+import { WinnerBadge, getBadgeLevel, BadgeLevel } from "@/components/WinnerBadge";
 
 export default function StudentAchievementsPage() {
   const { user } = useAuth();
@@ -11,6 +12,9 @@ export default function StudentAchievementsPage() {
   const [sophisticatedBadges, setSophisticatedBadges] = useState<any[]>([]);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
+  const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
+  const [isFirstWin, setIsFirstWin] = useState(false);
 
   useEffect(() => {
     const fetchAchievementsData = async () => {
@@ -50,6 +54,14 @@ export default function StudentAchievementsPage() {
 
         setCurrentStreak(streakData?.current_streak || 0);
         setLongestStreak(streakData?.longest_streak || 0);
+
+        // Calculate wins (score >= 80%)
+        if (quizResults) {
+          const wins = quizResults.filter(result => result.score >= 80).length;
+          setTotalWins(wins);
+          setBadgeLevel(getBadgeLevel(wins));
+          setIsFirstWin(wins === 1);
+        }
 
         if (!quizResults || quizResults.length === 0) {
           setSophisticatedBadges([
@@ -342,8 +354,34 @@ export default function StudentAchievementsPage() {
         </Card>
       </div>
 
-      {/* Achievements */}
+      {/* Winner Badge Section */}
+      {totalWins > 0 && (
+        <div className="mb-8 animate-scale-in">
+          <WinnerBadge 
+            level={badgeLevel} 
+            wins={totalWins} 
+            isFirstWin={isFirstWin} 
+          />
+        </div>
+      )}
+
+      {/* Earned Badges Section */}
+      {sophisticatedBadges.filter(b => b.earned).length > 0 && (
+        <div className="mb-8 animate-scale-in">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="text-accent" size={24} />
+            <h3 className="text-2xl font-bold text-foreground">Earned Badges</h3>
+          </div>
+          <SophisticatedBadges badges={sophisticatedBadges.filter(b => b.earned)} />
+        </div>
+      )}
+
+      {/* All Achievements */}
       <div className="animate-scale-in">
+        <div className="flex items-center gap-2 mb-4">
+          <Award className="text-primary" size={24} />
+          <h3 className="text-2xl font-bold text-foreground">All Achievements</h3>
+        </div>
         <SophisticatedBadges badges={sophisticatedBadges} />
       </div>
     </div>
