@@ -179,7 +179,7 @@ export function ParentLayout({ children }: ParentLayoutProps) {
                                         <DropdownMenuSeparator className="my-1.5" />
                                         <DropdownMenuItem onClick={signOut} className="rounded-xl font-bold cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive py-2">
                                             <LogOut className="mr-2 h-4 w-4" />
-                                            <span>Sign Out</span>
+                                            <span>Log Out</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
