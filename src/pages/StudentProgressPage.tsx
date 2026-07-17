@@ -20,7 +20,6 @@ export default function StudentProgressPage() {
   const [subjectProgress, setSubjectProgress] = useState<any[]>([]);
   const [sessionHistory, setSessionHistory] = useState<number[]>([]);
   const [sessionImprovement, setSessionImprovement] = useState<string>("↑ 0%");
-  const [badges, setBadges] = useState<any[]>([]);
   const [strengths, setStrengths] = useState<string>("");
   const [weaknesses, setWeaknesses] = useState<string>("");
   const [studyAnalytics, setStudyAnalytics] = useState<any>({
@@ -86,14 +85,6 @@ export default function StudentProgressPage() {
             gain: 0,
             consistency: 0
           });
-          setBadges([
-            { name: "First Quiz", icon: "🎯", earned: false },
-            { name: "10 Quiz Master", icon: "⭐", earned: false },
-            { name: "5-Day Streak", icon: "🔥", earned: currentStreak >= 5 },
-            { name: "Top 10%", icon: "👑", earned: false },
-            { name: "Perfect Score", icon: "💯", earned: false },
-            { name: "Week Warrior", icon: "⚡", earned: false },
-          ]);
           setLoading(false);
           return;
         }
@@ -184,51 +175,6 @@ export default function StudentProgressPage() {
           }
         }
         setSessionImprovement(sessionImpStr);
-
-        // Badges calculation
-        const firstQuiz = quizResults.length >= 1;
-        const tenQuiz = quizResults.length >= 10;
-        const streakBadge = longestStreak >= 5;
-        const perfectScore = quizResults.some(q => q.score === 100);
-        const hasRecentQuiz = quizResults.some(q => new Date(q.completed_at) >= oneWeekAgo);
-
-        // To determine Top 10%
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-        const { data: monthlyResults } = await supabase
-          .from("quiz_results")
-          .select("student_id, score")
-          .gte("completed_at", firstDayOfMonth);
-
-        let top10Badge = false;
-        if (monthlyResults && monthlyResults.length > 0) {
-          const studentScores = new Map<string, number[]>();
-          monthlyResults.forEach(r => {
-            if (!studentScores.has(r.student_id)) {
-              studentScores.set(r.student_id, []);
-            }
-            studentScores.get(r.student_id)!.push(r.score);
-          });
-          const studentAverages = Array.from(studentScores.entries()).map(([id, scores]) => ({
-            id,
-            avg: scores.reduce((sum, score) => sum + score, 0) / scores.length
-          }));
-          studentAverages.sort((a, b) => b.avg - a.avg);
-          const rank = studentAverages.findIndex(s => s.id === studentId) + 1;
-          const totalStudents = studentAverages.length;
-          top10Badge = rank > 0 && (rank / totalStudents <= 0.1 || rank <= 3);
-        } else {
-          top10Badge = avgScore >= 85;
-        }
-
-        setBadges([
-          { name: "First Quiz", icon: "🎯", earned: firstQuiz },
-          { name: "10 Quiz Master", icon: "⭐", earned: tenQuiz },
-          { name: "5-Day Streak", icon: "🔥", earned: streakBadge || currentStreak >= 5 },
-          { name: "Top 10%", icon: "👑", earned: top10Badge },
-          { name: "Perfect Score", icon: "💯", earned: perfectScore },
-          { name: "Week Warrior", icon: "⚡", earned: hasRecentQuiz },
-        ]);
 
         // Study Analytics
         const totalHours = Math.round((quizResults.length * 10 / 60) * 10) / 10;

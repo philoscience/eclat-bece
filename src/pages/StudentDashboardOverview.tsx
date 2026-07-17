@@ -39,7 +39,6 @@ export default function StudentDashboardOverview() {
   const [totalWins, setTotalWins] = useState(0);
   const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
   const [isFirstWin, setIsFirstWin] = useState(false);
-  const [badges, setBadges] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -139,49 +138,6 @@ export default function StudentDashboardOverview() {
             setTotalWins(wins);
             setBadgeLevel(getBadgeLevel(wins));
             setIsFirstWin(wins === 1);
-
-            // Calculate badges
-            const firstQuiz = allResults.length >= 1;
-            const tenQuiz = allResults.length >= 10;
-            const streakBadge = currentStreak >= 5;
-            const perfectScore = allResults.some(q => q.score === 100);
-            
-            // To determine Top 10%
-            const now = new Date();
-            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            const { data: monthlyResults } = await supabase
-              .from("quiz_results")
-              .select("student_id, score")
-              .gte("completed_at", firstDayOfMonth);
-            
-            let top10Badge = false;
-            if (monthlyResults && monthlyResults.length > 0) {
-              const studentScores = new Map<string, number[]>();
-              monthlyResults.forEach(r => {
-                if (!studentScores.has(r.student_id)) {
-                  studentScores.set(r.student_id, []);
-                }
-                studentScores.get(r.student_id)!.push(r.score);
-              });
-              const studentAverages = Array.from(studentScores.entries()).map(([id, scores]) => ({
-                id,
-                avg: scores.reduce((sum, score) => sum + score, 0) / scores.length
-              }));
-              studentAverages.sort((a, b) => b.avg - a.avg);
-              const rank = studentAverages.findIndex(s => s.id === studentData.id) + 1;
-              const totalStudents = studentAverages.length;
-              top10Badge = rank > 0 && (rank / totalStudents <= 0.1 || rank <= 3);
-            } else {
-              top10Badge = avgScore >= 85;
-            }
-
-            setBadges([
-              { name: "First Quiz", icon: "🎯", earned: firstQuiz },
-              { name: "10 Quiz Master", icon: "⭐", earned: tenQuiz },
-              { name: "5-Day Streak", icon: "🔥", earned: streakBadge },
-              { name: "Top 10%", icon: "👑", earned: top10Badge },
-              { name: "Perfect Score", icon: "💯", earned: perfectScore },
-            ]);
           }
         }
 
@@ -305,10 +261,10 @@ export default function StudentDashboardOverview() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-10 py-8 max-w-7xl overflow-x-hidden">
       {/* Welcome Section */}
-      <div className="mb-12 animate-fade-in">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="mb-16 animate-fade-in">
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
           <h2 className="text-3xl font-bold text-foreground">Welcome back, {userName}! 🎉</h2>
           {totalWins > 0 && (
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
@@ -328,12 +284,12 @@ export default function StudentDashboardOverview() {
       )}
     </div>
 
-      <Separator className="my-8 opacity-10" />
+      <Separator className="my-10 opacity-10" />
 
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-slide-up">
-        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/practice")}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-slide-up overflow-x-hidden">
+        <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/practice")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -344,7 +300,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
+        <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -363,7 +319,7 @@ export default function StudentDashboardOverview() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer" onClick={() => navigate("/dashboard/student/leaderboard")}>
+        <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/leaderboard")}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
@@ -385,45 +341,16 @@ export default function StudentDashboardOverview() {
 
       <Separator className="my-10 opacity-[0.07]" />
 
-      {/* Badges Section */}
-      <Card className="border-2 animate-scale-in mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Trophy className="text-accent" size={20} />
-            Badges Earned
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {badges.map((badge, idx) => (
-              <div
-                key={idx}
-                className={`flex flex-col items-center gap-2 p-3 rounded-lg border ${
-                  badge.earned 
-                    ? "bg-accent-light border-accent" 
-                    : "bg-muted border-border opacity-50"
-                }`}
-              >
-                <span className="text-2xl">{badge.icon}</span>
-                <span className="text-xs font-medium text-center">{badge.name}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Separator className="my-10 opacity-[0.07]" />
-
       {/* Feature Cards */}
-      <div className="mb-12">
+      <div className="mb-12 overflow-x-hidden">
         <h3 className="text-2xl font-bold text-foreground mb-6">Quick Access</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {featureCards.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Card
                 key={index}
-                className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all cursor-pointer group animate-scale-in"
+                className="bg-gradient-to-br from-card to-muted/20 border-border/50 shadow-soft hover:shadow-hover hover:scale-[1.02] transition-all cursor-pointer group animate-scale-in overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onClick={() => navigate(feature.url)}
               >
@@ -452,7 +379,7 @@ export default function StudentDashboardOverview() {
 
     {/* Student Code Display */}
     {studentCode && (
-      <Card className="mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg animate-fade-in">
+      <Card className="mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg animate-fade-in overflow-x-hidden">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>

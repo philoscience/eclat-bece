@@ -1,7 +1,9 @@
 import { useState } from "react"; // 1. Import useState
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 // 2. Remove the password-toggle state from the props interface
 interface LoginFormProps {

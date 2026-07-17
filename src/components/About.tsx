@@ -38,7 +38,7 @@ export const About = () => {
                 className="relative animate-slide-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="bg-gradient-card border-2 border-border rounded-xl p-6 hover:border-primary hover:shadow-hover transition-all">
+                <div className="bg-gradient-card border-2 border-border rounded-xl p-6">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-lg">
                       {index + 1}

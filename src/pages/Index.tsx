@@ -66,11 +66,11 @@ const Index = () => {
   };
 
   const handleLoginAction = () => {
-    navigate("/login/role-selection");
+    navigate("/auth/login/role-selection");
   };
 
-    const handleSignUpAction = () => {
-    navigate("/signup/role-selection");
+  const handleSignUpAction = () => {
+    navigate("/auth/signup/role-selection");
   };
 
   if (isCheckingAuth) {
