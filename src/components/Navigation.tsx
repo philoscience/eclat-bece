@@ -26,7 +26,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-background via-background/95 to-background backdrop-blur-xl border-b border-border/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+    <nav className="relative z-50 bg-background border-b border-border/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:bg-[rgb(1,28,58)] dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.18)]">
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
         <div className="flex items-center justify-between h-16 sm:h-20 md:h-24">
           {/* Logo */}
@@ -41,7 +41,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8 xl:gap-12">
+          <div className="hidden lg:flex items-center justify-center gap-10 xl:gap-10">
             <button
               onClick={() => scrollToSection("about")}
               className="relative text-foreground/85 hover:text-primary transition-all duration-300 font-bold text-sm xl:text-base tracking-tight hover:scale-110 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-gradient-to-r after:from-primary after:to-accent after:transition-all after:duration-300 hover:after:w-full pb-1"
@@ -69,7 +69,7 @@ export const Navigation = ({ onLoginClick, onGetStartedClick }: NavigationProps)
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-3 xl:gap-5">
+          <div className="hidden lg:flex items-center justify-center gap-4 xl:gap-4">
             <ThemeToggle />
             <Button 
               variant="outline" 
