@@ -8,7 +8,7 @@ interface HeroProps {
 
 export const Hero = ({ onGetStartedClick }: HeroProps) => {
   return (
-    <section id="hero" className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section id="hero" className="relative pt-20 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img 
