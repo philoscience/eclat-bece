@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchLeaderboardData } from "@/utils/leaderboard";
 
@@ -7,6 +7,7 @@ interface RankContextType {
   monthlyPoints: number;
   isLoadingRank: boolean;
   error: string | null;
+  refreshRank: () => Promise<void>;
 }
 
 const RankContext = createContext<RankContextType | undefined>(undefined);
@@ -18,11 +19,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
   const [isLoadingRank, setIsLoadingRank] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadRankData = useCallback(async () => {
+  const refreshRank = useCallback(async () => {
     if (!user?.id) {
-      setMonthlyRank(0);
-      setMonthlyPoints(0);
-      setError(null);
       return;
     }
 
@@ -43,16 +41,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    loadRankData();
-    const interval = setInterval(() => {
-      loadRankData();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [loadRankData]);
-
   return (
-    <RankContext.Provider value={{ monthlyRank, monthlyPoints, isLoadingRank, error }}>
+    <RankContext.Provider value={{ monthlyRank, monthlyPoints, isLoadingRank, error, refreshRank }}>
       {children}
     </RankContext.Provider>
   );
