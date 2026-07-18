@@ -290,58 +290,6 @@ export default function StudentDashboard() {
         </div>
       )}
 
-      {/* Header - Mobile Optimized */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            <img
-              src={logo}
-              alt="Éclat Logo"
-              className="h-10 sm:h-12 md:h-16 w-auto cursor-pointer"
-              onClick={() => navigate("/")}
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            {/* Desktop: Show all buttons */}
-            <div className="hidden md:flex items-center gap-4">
-              <ThemeToggle />
-              <Button variant="ghost" size="icon" className="h-10 w-10">
-                <Settings size={20} />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10" onClick={signOut}>
-                <LogOut size={20} />
-              </Button>
-            </div>
-
-            {/* Mobile: Dropdown menu + Theme toggle */}
-            <div className="md:hidden flex items-center gap-2">
-              <ThemeToggle />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10">
-                    <Menu size={20} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate("/settings")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section - Mobile Optimized */}
         <div className="mb-10 sm:mb-12 md:animate-fade-in">
