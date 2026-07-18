@@ -194,6 +194,7 @@ export default function StudentDashboardOverview() {
             }
           }
         }
+
       }
     };
 
@@ -321,7 +322,7 @@ export default function StudentDashboardOverview() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground leading-none">{earnedBadgesCount}</p>
-                    <p className="text-sm text-muted-foreground mt-1">Badges</p>
+                    <p className="text-sm text-muted-foreground mt-1">Points</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 py-4 sm:py-0 sm:pl-4">

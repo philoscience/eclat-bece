@@ -7,12 +7,14 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    // Clear all local storage to ensure session is completely removed
-    localStorage.clear();
-    sessionStorage.clear();
-    // Use window.location.href to force a full page reload and clear any cached state
-    window.location.href = "/";
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      navigate("/", { replace: true });
+      window.location.reload();
+    }
   };
 
   return { user, session, loading, signOut: handleSignOut };
