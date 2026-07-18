@@ -26,7 +26,7 @@ import logoLight from "@/assets/logo-light.png";
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { monthlyRank, monthlyPoints } = useRank();
+  const { monthlyRank, monthlyPoints, monthlyLeaders, annualLeaders } = useRank();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("subject");
   const [userName, setUserName] = useState("Student");
@@ -564,6 +564,8 @@ export default function StudentDashboard() {
                 currentUserName={userName}
                 currentUserRanks={{ monthly: monthlyRank || 0, annual: 0 }}
                 currentUserPoints={{ monthly: monthlyPoints || 0, annual: 0 }}
+                monthlyLeaders={monthlyLeaders}
+                annualLeaders={annualLeaders}
               />
             </div>
           </div>

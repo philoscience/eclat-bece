@@ -1,16 +1,20 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchLeaderboardData } from "@/utils/leaderboard";
+import { fetchLeaderboardData, LeaderboardStudent } from "@/utils/leaderboard";
 
 interface RankContextType {
   monthlyRank: number;
   monthlyPoints: number;
+  monthlyLeaders: LeaderboardStudent[];
+  annualLeaders: LeaderboardStudent[];
   isLoadingRank: boolean;
   isLoadingPoints: boolean;
   error: Error | null;
   refreshRank: () => Promise<void>;
   refreshPoints: () => Promise<void>;
   refreshAll: () => Promise<void>;
+  getUserByMonthlyRank: (rank: number) => LeaderboardStudent | undefined;
+  getUserByAnnualRank: (rank: number) => LeaderboardStudent | undefined;
 }
 
 const RankContext = createContext<RankContextType | undefined>(undefined);
@@ -19,6 +23,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [monthlyRank, setMonthlyRank] = useState(0);
   const [monthlyPoints, setMonthlyPoints] = useState(0);
+  const [monthlyLeaders, setMonthlyLeaders] = useState<LeaderboardStudent[]>([]);
+  const [annualLeaders, setAnnualLeaders] = useState<LeaderboardStudent[]>([]);
   const [isLoadingRank, setIsLoadingRank] = useState(false);
   const [isLoadingPoints, setIsLoadingPoints] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -44,6 +50,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
 
       if (type === 'rank' || type === 'all') {
         setMonthlyRank(data.currentUserRanks?.monthly || 0);
+        setMonthlyLeaders(data.monthlyLeaders);
+        setAnnualLeaders(data.annualLeaders);
       }
       if (type === 'points' || type === 'all') {
         setMonthlyPoints(data.currentUserPoints?.monthly || 0);
@@ -96,6 +104,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
         if (type === 'all') {
           setMonthlyRank(0);
           setMonthlyPoints(0);
+          setMonthlyLeaders([]);
+          setAnnualLeaders([]);
         }
       }
     } finally {
@@ -119,6 +129,15 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
   const refreshPoints = useCallback(() => refresh('points'), [refresh]);
   const refreshAll = useCallback(() => refresh('all'), [refresh]);
 
+  // New lookup functions
+  const getUserByMonthlyRank = useCallback((rank: number) => {
+    return monthlyLeaders.find(student => student.rank === rank);
+  }, [monthlyLeaders]);
+
+  const getUserByAnnualRank = useCallback((rank: number) => {
+    return annualLeaders.find(student => student.rank === rank);
+  }, [annualLeaders]);
+
   // Auto-refresh on login, abort on logout
   useEffect(() => {
     if (user?.id) {
@@ -135,6 +154,8 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
       // Reset state
       setMonthlyRank(0);
       setMonthlyPoints(0);
+      setMonthlyLeaders([]);
+      setAnnualLeaders([]);
       setError(null);
       setIsLoadingRank(false);
       setIsLoadingPoints(false);
@@ -154,13 +175,17 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = useMemo(() => ({
     monthlyRank,
     monthlyPoints,
+    monthlyLeaders,
+    annualLeaders,
     isLoadingRank,
     isLoadingPoints,
     error,
     refreshRank,
     refreshPoints,
     refreshAll,
-  }), [monthlyRank, monthlyPoints, isLoadingRank, isLoadingPoints, error, refreshRank, refreshPoints, refreshAll]);
+    getUserByMonthlyRank,
+    getUserByAnnualRank,
+  }), [monthlyRank, monthlyPoints, monthlyLeaders, annualLeaders, isLoadingRank, isLoadingPoints, error, refreshRank, refreshPoints, refreshAll, getUserByMonthlyRank, getUserByAnnualRank]);
 
   return (
     <RankContext.Provider value={contextValue}>

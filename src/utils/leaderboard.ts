@@ -7,6 +7,8 @@ export interface LeaderboardStudent {
   points: number;
   avatar: string;
   isCurrentUser?: boolean;
+  studentId?: string;
+  userId?: string;
 }
 
 export interface LeaderboardData {
