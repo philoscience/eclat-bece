@@ -27,7 +27,6 @@ export default function StudentDashboardOverview() {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
   const [monthlyRank, setMonthlyRank] = useState<number | null>(null);
-  const [studentCode, setStudentCode] = useState<string>("");
   const [currentStreak, setCurrentStreak] = useState(0);
   
   // Real database counts for badges
@@ -46,17 +45,13 @@ export default function StudentDashboardOverview() {
       
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("full_name, unique_id")
+        .select("full_name")
         .eq("id", user.id)
         .single();
       
       if (profileData?.full_name) {
         const firstName = profileData.full_name.split(" ")[0];
         setUserName(firstName);
-      }
-
-      if (profileData?.unique_id) {
-        setStudentCode(profileData.unique_id);
       }
 
       const { data: studentData } = await supabase
@@ -263,16 +258,6 @@ export default function StudentDashboardOverview() {
     Math.round((totalQuestions * 0.5) + (completedQuizzesCount * 24) + (averageScore * 2) + (currentStreak * 10) + (totalWins * 40))
   );
 
-  const [copiedCode, setCopiedCode] = useState(false);
-
-  const handleCopyCode = async () => {
-    if (studentCode) {
-      await navigator.clipboard.writeText(studentCode);
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-    }
-  };
-
   return (
     <div className="container mx-auto px-10 py-6 max-w-7xl overflow-x-hidden">
       {/* Welcome Section */}
@@ -430,44 +415,6 @@ export default function StudentDashboardOverview() {
         </div>
       </div>
 
-      <Separator className="my-10 opacity-[0.07]" />
-
-    {/* Student Code Display */}
-    {studentCode && (
-      <Card className="mt-8 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 shadow-lg animate-fade-in overflow-x-hidden">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">Your Student Code</p>
-              <p className="text-xs text-muted-foreground mb-3">Share this code with your parent to link accounts</p>
-              <div className="flex items-center gap-3">
-                <code className="text-2xl sm:text-3xl font-bold tracking-widest bg-background/50 px-4 py-2 rounded-lg border border-border text-primary">
-                  {studentCode}
-                </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyCode}
-                  className="shrink-0"
-                >
-                  {copiedCode ? (
-                    <>
-                      <Check className="h-4 w-4 mr-1" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4 mr-1" />
-                      Copy
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    )}
   </div>
 );
 }

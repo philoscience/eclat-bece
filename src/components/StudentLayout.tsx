@@ -1,7 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Flame, Settings, User as UserIcon, KeyRound, Link2, LogOut } from "lucide-react";
+import { Flame, Settings, User as UserIcon, KeyRound, Link2, LogOut, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { toast } from "sonner";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,8 +40,21 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const [displayName, setDisplayName] = useState("");
   const [totalWins, setTotalWins] = useState(0);
   const [badgeLevel, setBadgeLevel] = useState<BadgeLevel>('bronze');
+  const [studentCode, setStudentCode] = useState("");
+  const [copied, setCopied] = useState(false);
   
   const logo = theme === "dark" ? logoLight : logoDark;
+
+  const handleCopyCode = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (studentCode) {
+      navigator.clipboard.writeText(studentCode);
+      setCopied(true);
+      toast.success("Student code copied!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -49,13 +63,14 @@ export function StudentLayout({ children }: StudentLayoutProps) {
       // Fetch profile data
       const { data: profileData } = await supabase
         .from("profiles")
-        .select("avatar_url, display_name, email")
+        .select("avatar_url, display_name, email, unique_id")
         .eq("id", user.id)
         .maybeSingle();
 
       if (profileData) {
         setAvatarUrl(profileData.avatar_url || "");
         setDisplayName(profileData.display_name || profileData.email || "");
+        setStudentCode(profileData.unique_id || "");
       }
 
       // Fetch student data for badge stats
@@ -149,6 +164,21 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                       <Link2 className="mr-2 h-4 w-4" />
                       <span>Account Settings</span>
                     </DropdownMenuItem>
+                    {studentCode && (
+                      <DropdownMenuItem onClick={handleCopyCode} className="cursor-pointer">
+                        {copied ? (
+                          <Check className="mr-2 h-4 w-4 text-green-600 animate-pulse" />
+                        ) : (
+                          <Copy className="mr-2 h-4 w-4 text-muted-foreground" />
+                        )}
+                        <div className="flex justify-between w-full items-center">
+                          <span>Link Code</span>
+                          <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded font-bold text-primary select-all ml-2">
+                            {studentCode}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={signOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />

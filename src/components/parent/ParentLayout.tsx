@@ -172,7 +172,7 @@ export function ParentLayout({ children }: ParentLayoutProps) {
                                                 <Copy className="mr-2 h-4 w-4 text-muted-foreground" />
                                             )}
                                             <div className="flex justify-between w-full items-center">
-                                                <span>Copy Link Code</span>
+                                                <span>Link Code</span>
                                                 <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded font-black text-primary select-all">{uniqueId}</span>
                                             </div>
                                         </DropdownMenuItem>
