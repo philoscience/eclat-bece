@@ -561,8 +561,9 @@ export default function StudentDashboard() {
             <div className="md:animate-scale-in" style={{ animationDelay: "0.3s" }}>
               <CompetitionLeaderboards
                 showCurrentUserPosition={true}
-                currentUserName="Ada"
-                currentUserRanks={{ monthly: 12, annual: 8 }}
+                currentUserName={userName}
+                currentUserRanks={{ monthly: monthlyRank || 0, annual: 0 }}
+                currentUserPoints={{ monthly: monthlyPoints || 0, annual: 0 }}
               />
             </div>
           </div>
