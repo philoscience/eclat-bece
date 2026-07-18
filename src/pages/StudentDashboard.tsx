@@ -412,20 +412,20 @@ export default function StudentDashboard() {
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
+          <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1">
                   <p className="text-sm text-muted-foreground mb-1">Duel of Minds</p>
                   <div className="flex items-baseline gap-2">
-                    <p className="text-4xl font-black text-purple-600">Compete</p>
-                    <span className="text-xs font-semibold text-purple-600/70 bg-purple-500/10 px-2 py-1 rounded-full">Challenge</span>
+                    <p className="text-4xl font-black text-primary">Compete</p>
+                    <span className="text-xs font-semibold text-primary bg-purple-500/10 px-2 py-1 rounded-full">Challenge</span>
                   </div>
                 </div>
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <Swords className="text-purple-600" size={32} />
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full animate-pulse" />
+                    <Swords className="text-primary" size={32} />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary/60 rounded-full animate-pulse" />
                   </div>
                 </div>
               </div>
