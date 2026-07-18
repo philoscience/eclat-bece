@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BookOpen, Trophy, TrendingUp, Target, Flame, LogOut, Settings, Menu, Lock, ShieldCheck } from "lucide-react";
+import { BookOpen, Trophy, TrendingUp, Target, Flame, LogOut, Settings, Menu, Lock, ShieldCheck, Swords } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CompetitionLeaderboards } from "@/components/CompetitionLeaderboards";
 import { PracticeAssignment, Assignment } from "@/components/PracticeAssignment";
@@ -26,7 +26,7 @@ import logoLight from "@/assets/logo-light.png";
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
-  const { monthlyRank } = useRank();
+  const { monthlyRank, monthlyPoints } = useRank();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("subject");
   const [userName, setUserName] = useState("Student");
@@ -166,8 +166,6 @@ export default function StudentDashboard() {
       setTotalWins(0);
     }
   }, [user]);
-
-
 
   const fetchAssignments = useCallback(async () => {
     if (!user) return;
@@ -326,8 +324,12 @@ export default function StudentDashboard() {
                       <ShieldCheck size={20} />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-foreground leading-none">{earnedBadgesCount}</p>
-                      <p className="text-sm text-muted-foreground mt-1">Badges</p>
+                      <p className="text-2xl font-bold text-foreground leading-none">
+                        {monthlyPoints}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Points
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 py-4 sm:py-0 sm:pl-4">
@@ -346,37 +348,52 @@ export default function StudentDashboard() {
         </div>
 
         {/* Quick Stats - Mobile Optimized */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-8 sm:mb-10 md:mt-1 md:animate-slide-up">
-          <Card className="border-2 hover:shadow-hover transition-all">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-2 sm:mt-3 animate-slide-up overflow-x-hidden">
+          <Card className="bg-gradient-to-br from-primary-light/30 to-primary-light/10 border-primary-light/40 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/practice")}>
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Practice Questions</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-primary">847</p>
+                  <p className="text-sm text-muted-foreground">Start Questions</p>
+                  <p className="text-3xl font-bold text-primary">Start</p>
                 </div>
-                <Target className="text-primary" size={24} />
+                <Target className="text-primary" size={32} />
               </div>
             </CardContent>
           </Card>
-          <Card className="border-2 hover:shadow-hover transition-all">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Average Score</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-accent">78%</p>
+          <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/duel-of-minds")}>
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">Duel of Minds</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-4xl font-black text-purple-600">Compete</p>
+                    <span className="text-xs font-semibold text-purple-600/70 bg-purple-500/10 px-2 py-1 rounded-full">Challenge</span>
+                  </div>
                 </div>
-                <TrendingUp className="text-accent" size={24} />
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <Swords className="text-purple-600" size={32} />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full animate-pulse" />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all sm:col-span-2 md:col-span-1">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">Rank This Month</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-primary">#12</p>
+          <Card className="bg-gradient-to-br from-primary-light/20 to-background border-primary-light/30 shadow-soft hover:shadow-hover transition-all cursor-pointer overflow-hidden" onClick={() => navigate("/dashboard/student/leaderboard")}>
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">See Rankings</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-4xl font-black text-primary">View</p>
+                  </div>
                 </div>
-                <Trophy className="text-accent" size={24} />
+                <div className="flex-shrink-0">
+                  <div className="relative">
+                    <Trophy className="text-accent" size={32} />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse" />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
