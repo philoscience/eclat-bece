@@ -20,7 +20,7 @@ import EmailVerificationPage from "./pages/EmailVerificationPage";
 // import StudentOnboarding from "./pages/StudentOnboarding";
 import ParentOnboarding from "./pages/ParentOnboarding";
 import SchoolOnboarding from "./pages/SchoolOnboarding";
-import StudentDashboardOverview from "./pages/StudentDashboardOverview";
+import StudentDashboard from "./pages/StudentDashboard";
 import StudentPractice from "./pages/StudentPractice";
 import StudentAssignments from "./pages/StudentAssignments";
 import StudentProgressPage from "./pages/StudentProgressPage";
@@ -64,9 +64,9 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <AuthProvider>
-          <RankProvider>
-            <BrowserRouter>
+        <BrowserRouter>
+          <AuthProvider>
+            <RankProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -93,7 +93,7 @@ const App = () => (
               <Route path="/dashboard/student" element={
                 <ProtectedRoute requiredRole="student">
                   <StudentLayout>
-                    <StudentDashboardOverview />
+                    <StudentDashboard />
                   </StudentLayout>
                 </ProtectedRoute>
               } />
@@ -214,9 +214,9 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-          </RankProvider>
-        </AuthProvider>
+            </RankProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
