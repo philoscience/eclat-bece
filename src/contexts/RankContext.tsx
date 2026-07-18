@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchLeaderboardData } from "@/utils/leaderboard";
 
@@ -6,7 +6,11 @@ interface RankContextType {
   monthlyRank: number;
   monthlyPoints: number;
   isLoadingRank: boolean;
-  error: string | null;
+  isLoadingPoints: boolean;
+  error: Error | null;
+  refreshRank: () => Promise<void>;
+  refreshPoints: () => Promise<void>;
+  refreshAll: () => Promise<void>;
 }
 
 const RankContext = createContext<RankContextType | undefined>(undefined);
@@ -16,43 +20,150 @@ export const RankProvider = ({ children }: { children: ReactNode }) => {
   const [monthlyRank, setMonthlyRank] = useState(0);
   const [monthlyPoints, setMonthlyPoints] = useState(0);
   const [isLoadingRank, setIsLoadingRank] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoadingPoints, setIsLoadingPoints] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  
+  // Refs for request management
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const requestPromiseRef = useRef<Promise<void> | null>(null);
+  const requestTypeRef = useRef<'rank' | 'points' | 'all' | null>(null);
 
-  const loadRankData = useCallback(async () => {
+  // Consolidated internal fetch function
+  const fetchData = useCallback(async (
+    type: 'rank' | 'points' | 'all',
+    signal: AbortSignal
+  ) => {
     if (!user?.id) {
-      setMonthlyRank(0);
-      setMonthlyPoints(0);
-      setError(null);
       return;
     }
 
-    setIsLoadingRank(true);
-    setError(null);
-
     try {
       const data = await fetchLeaderboardData(user.id);
-      setMonthlyRank(data.currentUserRanks?.monthly || 0);
-      setMonthlyPoints(data.currentUserPoints?.monthly || 0);
+      
+      if (signal.aborted) return;
+
+      if (type === 'rank' || type === 'all') {
+        setMonthlyRank(data.currentUserRanks?.monthly || 0);
+      }
+      if (type === 'points' || type === 'all') {
+        setMonthlyPoints(data.currentUserPoints?.monthly || 0);
+      }
     } catch (err) {
-      console.error("Error fetching rank data:", err);
-      setError("Failed to load rank data");
-      setMonthlyRank(0);
-      setMonthlyPoints(0);
-    } finally {
-      setIsLoadingRank(false);
+      if (signal.aborted) return;
+      throw err;
     }
   }, [user?.id]);
 
+  // Coalesced refresh function
+  const refresh = useCallback(async (type: 'rank' | 'points' | 'all') => {
+    if (!user?.id) {
+      return;
+    }
+
+    // Set appropriate loading flag
+    if (type === 'rank') setIsLoadingRank(true);
+    if (type === 'points') setIsLoadingPoints(true);
+    if (type === 'all') {
+      setIsLoadingRank(true);
+      setIsLoadingPoints(true);
+    }
+    setError(null);
+
+    // Cancel previous request if same type
+    if (abortControllerRef.current && requestTypeRef.current === type) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    requestTypeRef.current = type;
+
+    try {
+      // Coalesce concurrent calls of same type
+      if (requestPromiseRef.current && requestTypeRef.current === type) {
+        await requestPromiseRef.current;
+      } else {
+        const promise = fetchData(type, controller.signal);
+        requestPromiseRef.current = promise;
+        await promise;
+      }
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setError(err instanceof Error ? err : new Error(String(err)));
+        if (type === 'rank') setMonthlyRank(0);
+        if (type === 'points') setMonthlyPoints(0);
+        if (type === 'all') {
+          setMonthlyRank(0);
+          setMonthlyPoints(0);
+        }
+      }
+    } finally {
+      if (type === 'rank') setIsLoadingRank(false);
+      if (type === 'points') setIsLoadingPoints(false);
+      if (type === 'all') {
+        setIsLoadingRank(false);
+        setIsLoadingPoints(false);
+      }
+      
+      // Clean up refs if this was the last request
+      if (requestTypeRef.current === type) {
+        abortControllerRef.current = null;
+        requestPromiseRef.current = null;
+        requestTypeRef.current = null;
+      }
+    }
+  }, [user?.id, fetchData]);
+
+  const refreshRank = useCallback(() => refresh('rank'), [refresh]);
+  const refreshPoints = useCallback(() => refresh('points'), [refresh]);
+  const refreshAll = useCallback(() => refresh('all'), [refresh]);
+
+  // Auto-refresh on login, abort on logout
   useEffect(() => {
-    loadRankData();
-    const interval = setInterval(() => {
-      loadRankData();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [loadRankData]);
+    if (user?.id) {
+      refreshAll();
+    } else {
+      // Abort any in-flight request on logout
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+      requestPromiseRef.current = null;
+      requestTypeRef.current = null;
+      
+      // Reset state
+      setMonthlyRank(0);
+      setMonthlyPoints(0);
+      setError(null);
+      setIsLoadingRank(false);
+      setIsLoadingPoints(false);
+    }
+  }, [user?.id, refreshAll]);
+
+  // Abort on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Memoize context value
+  const contextValue = useMemo(() => ({
+    monthlyRank,
+    monthlyPoints,
+    isLoadingRank,
+    isLoadingPoints,
+    error,
+    refreshRank,
+    refreshPoints,
+    refreshAll,
+  }), [monthlyRank, monthlyPoints, isLoadingRank, isLoadingPoints, error, refreshRank, refreshPoints, refreshAll]);
 
   return (
-    <RankContext.Provider value={{ monthlyRank, monthlyPoints, isLoadingRank, error }}>
+    <RankContext.Provider value={contextValue}>
       {children}
     </RankContext.Provider>
   );

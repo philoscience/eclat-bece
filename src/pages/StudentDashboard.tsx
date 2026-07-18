@@ -17,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useRank } from "@/contexts/RankContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "next-themes";
 import logoDark from "@/assets/logo-dark.png";
@@ -25,6 +26,7 @@ import logoLight from "@/assets/logo-light.png";
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { monthlyRank } = useRank();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("subject");
   const [userName, setUserName] = useState("Student");
@@ -36,11 +38,13 @@ export default function StudentDashboard() {
   const [averageScore, setAverageScore] = useState(0);
   const [totalWins, setTotalWins] = useState(0);
   const [monthlyRank, setMonthlyRank] = useState<number | null>(null);
-  const [monthlyPoints, setMonthlyPoints] = useState(0);
   const [isPremium, setIsPremium] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isLoadingAssignments, setIsLoadingAssignments] = useState(true);
+
+  // Calculate rank difference from 10
+  const rankDifference = monthlyRank > 10 ? monthlyRank - 10 : 0;
 
   const logo = theme === "dark" ? logoLight : logoDark;
 
@@ -222,9 +226,6 @@ export default function StudentDashboard() {
       return a.name.localeCompare(b.name);
     });
 
-    const studentPoints = studentPointsMap.get(studentData.id) || 0;
-    setMonthlyPoints(studentPoints);
-    // console.log("Monthly Points:", studentPoints);
     const rank = rankings.findIndex((student) => student.studentId === studentData.id) + 1;
     setMonthlyRank(rank > 0 ? rank : null);
   }, [user]);
@@ -265,20 +266,18 @@ export default function StudentDashboard() {
       fetchQuestionCounts(),
       fetchStreak(),
       fetchProgressStats(),
-      fetchMonthlyRank(),
       fetchAssignments()
     ]);
     setRefreshing(false);
-  }, [fetchAssignments, fetchMonthlyRank, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
+  }, [fetchAssignments, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
 
   useEffect(() => {
     fetchUserData();
     fetchQuestionCounts();
     fetchStreak();
     fetchProgressStats();
-    fetchMonthlyRank();
     fetchAssignments();
-  }, [fetchAssignments, fetchMonthlyRank, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
+  }, [fetchAssignments, fetchProgressStats, fetchQuestionCounts, fetchStreak, fetchUserData]);
 
   // Pull to refresh logic
   useEffect(() => {
@@ -418,7 +417,7 @@ export default function StudentDashboard() {
                 </p>
               )}
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
-                Ready to ace your exams? <span className="hidden sm:inline">You're 2 ranks away from Top 10 nationally!</span>
+                Ready to ace your exams? <span className="hidden sm:inline">You're {rankDifference} ranks away from Top 10 nationally!</span>
                 <span className="sm:hidden">Keep practicing!</span>
               </p>
             </div>
